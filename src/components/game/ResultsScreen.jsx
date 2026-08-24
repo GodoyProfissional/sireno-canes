@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   Flag,
   Star,
@@ -10,12 +10,17 @@ import {
   Share2,
   Trophy,
   ShieldCheck,
+  FileText,
 } from 'lucide-react'
 import confetti from 'canvas-confetti'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 
 export const ResultsScreen = ({ state, onRestart }) => {
   const { state: gameState, LEVELS_CONFIG, getLevel } = state
   const confettiTriggered = useRef(false)
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
+  const resultsRef = useRef(null)
 
   const accuracy =
     gameState.totalAttempts > 0
@@ -38,14 +43,11 @@ export const ResultsScreen = ({ state, onRestart }) => {
     if (!confettiTriggered.current) {
       confettiTriggered.current = true
 
-      // Confetes principais
       const duration = 5 * 1000
       const end = Date.now() + duration
-
       const colors = ['#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
 
       ;(function frame() {
-        // Confete da esquerda
         confetti({
           particleCount: 7,
           angle: 60,
@@ -54,8 +56,6 @@ export const ResultsScreen = ({ state, onRestart }) => {
           colors: colors,
           startVelocity: 30,
         })
-
-        // Confete da direita
         confetti({
           particleCount: 7,
           angle: 120,
@@ -64,8 +64,6 @@ export const ResultsScreen = ({ state, onRestart }) => {
           colors: colors,
           startVelocity: 30,
         })
-
-        // Confete do centro (explosão)
         confetti({
           particleCount: 15,
           spread: 100,
@@ -73,8 +71,6 @@ export const ResultsScreen = ({ state, onRestart }) => {
           colors: colors,
           startVelocity: 25,
         })
-
-        // Estrelas
         confetti({
           particleCount: 5,
           spread: 60,
@@ -83,7 +79,6 @@ export const ResultsScreen = ({ state, onRestart }) => {
           shapes: ['star'],
           startVelocity: 20,
         })
-
         confetti({
           particleCount: 5,
           spread: 60,
@@ -92,13 +87,11 @@ export const ResultsScreen = ({ state, onRestart }) => {
           shapes: ['star'],
           startVelocity: 20,
         })
-
         if (Date.now() < end) {
           requestAnimationFrame(frame)
         }
       })()
 
-      // Segunda rodada de confetes após 2 segundos
       setTimeout(() => {
         const end2 = Date.now() + 3000
         ;(function frame2() {
@@ -122,7 +115,6 @@ export const ResultsScreen = ({ state, onRestart }) => {
         })()
       }, 2000)
 
-      // Terceira rodada após 4 segundos
       setTimeout(() => {
         const end3 = Date.now() + 2000
         ;(function frame3() {
@@ -140,6 +132,178 @@ export const ResultsScreen = ({ state, onRestart }) => {
       }, 4000)
     }
   }, [])
+
+  // ===== GERAR PDF COM GABARITO =====
+  const generatePDF = async () => {
+    setIsGeneratingPDF(true)
+
+    try {
+      const { questionsDB } = await import('../../data/questions')
+
+      const container = document.createElement('div')
+      container.style.cssText = `
+        padding: 40px;
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        color: #1a1a2e;
+      `
+
+      // Cabeçalho do PDF
+      container.innerHTML = `
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #0ea5e9; padding-bottom: 20px;">
+          <h1 style="color: #0ea5e9; font-size: 28px; margin: 0;">📋 Gabarito - Missão de Evacuação</h1>
+          <h2 style="color: #1a1a2e; font-size: 18px; margin: 5px 0; font-weight: normal;">Escape da Unidade - Respostas Corretas</h2>
+          <div style="font-size: 14px; color: #64748b; margin-top: 5px;">
+            Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+          <h3 style="color: #1a1a2e; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; font-size: 18px;">
+            📝 Lista de Respostas Corretas
+          </h3>
+          <div style="margin-top: 15px;">
+      `
+
+      // Adicionar cada pergunta com sua resposta correta
+      questionsDB.forEach((q, index) => {
+        let resposta = ''
+        let detalhe = ''
+
+        switch (q.type) {
+          case 'multiple-choice':
+            const correctOption = q.options.find((opt) => opt.id === q.correctAnswer)
+            resposta = correctOption ? correctOption.text : q.correctAnswer
+            detalhe = `Alternativa ${q.correctAnswer.toUpperCase()}`
+            break
+          case 'drag-match':
+            resposta = q.pairs.map((p) => `<strong>${p.left}</strong> → ${p.right}`).join('<br>')
+            detalhe = 'Conecte os pares corretamente'
+            break
+          case 'sequence':
+            resposta = q.steps.map((s, i) => `${i + 1}. ${s}`).join('<br>')
+            detalhe = 'Ordem correta dos procedimentos'
+            break
+          case 'bubble-select':
+            const correctBubbles = q.bubbles.filter((b) => b.isCorrect).map((b) => b.text)
+            resposta = correctBubbles.join('<br>')
+            detalhe = 'Selecione as atitudes corretas'
+            break
+          case 'image-hotspot':
+            resposta = 'Clique na região do Ponto de Encontro Isolado'
+            detalhe = 'Localização do ponto de encontro'
+            break
+          case 'route-choice':
+            const correctRoute = q.routes.find((r) => r.isCorrect)
+            resposta = correctRoute ? correctRoute.title : 'Caminho Sinalizado'
+            detalhe = 'Rota de fuga correta'
+            break
+          case 'spot-the-error':
+            resposta = q.errors.map((e) => `❌ ${e.label}`).join('<br>')
+            detalhe = '7 erros identificados'
+            break
+          default:
+            resposta = 'Verificar no sistema'
+            detalhe = ''
+        }
+
+        container.innerHTML += `
+          <div style="background: #f8fafc; padding: 14px 18px; margin-bottom: 10px; border-radius: 10px; border-left: 4px solid #0ea5e9; border: 1px solid #e2e8f0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 200px;">
+                <div style="font-weight: bold; font-size: 15px; color: #0ea5e9;">
+                  ${index + 1}. ${q.room}
+                </div>
+                <div style="font-size: 13px; color: #64748b; margin-top: 2px;">
+                  ${q.situation}
+                </div>
+                <div style="font-size: 13px; color: #475569; margin-top: 4px; background: #f1f5f9; padding: 6px 10px; border-radius: 6px;">
+                  <span style="font-weight: 600; color: #1e293b;">Resposta correta:</span>
+                  <div style="margin-top: 4px; font-weight: 500; color: #0f172a;">
+                    ${resposta}
+                  </div>
+                  ${detalhe ? `<div style="font-size: 11px; color: #94a3b8; margin-top: 3px;">${detalhe}</div>` : ''}
+                </div>
+              </div>
+              <div style="font-size: 14px; color: #22c55e; font-weight: bold; background: #dcfce7; padding: 4px 12px; border-radius: 20px; margin-left: 10px; white-space: nowrap; align-self: center;">
+                ✅ Correta
+              </div>
+            </div>
+          </div>
+        `
+      })
+
+      container.innerHTML += `
+          </div>
+        </div>
+        
+        <div style="text-align: center; padding-top: 20px; border-top: 2px solid #e2e8f0; color: #94a3b8; font-size: 12px;">
+          © Missão de Evacuação - Treinamento Corporativo
+          <br>
+          Use este gabarito para revisar seus conhecimentos sobre segurança e evacuação.
+        </div>
+      `
+
+      document.body.appendChild(container)
+
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      })
+
+      document.body.removeChild(container)
+
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const pdfWidth = pdf.internal.pageSize.getWidth()
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+
+      let heightLeft = pdfHeight
+      let position = 0
+
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight)
+      heightLeft -= pdf.internal.pageSize.getHeight()
+
+      while (heightLeft > 0) {
+        position = heightLeft - pdfHeight
+        pdf.addPage()
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight)
+        heightLeft -= pdf.internal.pageSize.getHeight()
+      }
+
+      pdf.save('Gabarito-Missao-Evacuacao.pdf')
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error)
+      alert('Erro ao gerar PDF. Tente novamente.')
+    }
+
+    setIsGeneratingPDF(false)
+  }
+
+  // ===== COMPARTILHAR (TEXTO) =====
+  const handleShare = async () => {
+    const text = `🏆 Completei a Missão de Evacuação!\n\n⭐ ${gameState.xp} XP\n🎯 ${accuracy}% de precisão\n⏱️ ${formatTime(gameState.timeElapsed)}\n📊 Nível: ${levelConfig.name}\n\nTreine você também! #EscapeDaUnidade #SegurançaSenac`
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Missão de Evacuação - Escape da Unidade',
+          text: text,
+        })
+      } catch (e) {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(text)
+        alert('Resultados copiados para a área de transferência!')
+      } catch (e) {
+        prompt('Copie os resultados:', text)
+      }
+    }
+  }
 
   const getMedals = () => {
     const medals = []
@@ -182,36 +346,14 @@ export const ResultsScreen = ({ state, onRestart }) => {
     return medals
   }
 
-  const handleShare = async () => {
-    const text = `🏆 Completei a Missão de Evacuação!\n\n⭐ ${gameState.xp} XP\n🎯 ${accuracy}% de precisão\n⏱️ ${formatTime(gameState.timeElapsed)}\n📊 Nível: ${levelConfig.name}\n\nTreine você também! #EscapeDaUnidade #SegurançaSenac`
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Missão de Evacuação - Escape da Unidade',
-          text: text,
-        })
-      } catch (e) {}
-    } else {
-      try {
-        await navigator.clipboard.writeText(text)
-        alert('Resultados copiados para a área de transferência!')
-      } catch (e) {
-        prompt('Copie os resultados:', text)
-      }
-    }
-  }
-
   return (
-    <div className="flex items-center justify-center min-h-screen p-4 relative">
-      {/* Overlay de festa com animação */}
+    <div className="flex items-center justify-center min-h-screen p-4 relative" ref={resultsRef}>
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-transparent to-primary-500/5"></div>
       </div>
 
       <div className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden animate-slide-up relative z-10">
         <div className="bg-gradient-to-r from-success-600 to-emerald-500 p-10 text-center text-white relative overflow-hidden">
-          {/* Decoração de festa */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16"></div>
             <div className="absolute bottom-0 right-0 w-48 h-48 bg-white rounded-full translate-x-24 translate-y-24"></div>
@@ -305,7 +447,7 @@ export const ResultsScreen = ({ state, onRestart }) => {
           </div>
 
           {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-wrap gap-4 justify-center">
             <button
               onClick={onRestart}
               className="px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
@@ -313,12 +455,31 @@ export const ResultsScreen = ({ state, onRestart }) => {
               <RotateCcw size={24} strokeWidth={1.5} />
               Refazer Simulação
             </button>
+
+            <button
+              onClick={generatePDF}
+              disabled={isGeneratingPDF}
+              className="px-8 py-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isGeneratingPDF ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                  Gerando...
+                </>
+              ) : (
+                <>
+                  <FileText size={24} strokeWidth={1.5} />
+                  Baixar Gabarito
+                </>
+              )}
+            </button>
+
             <button
               onClick={handleShare}
               className="px-8 py-4 bg-primary-600 hover:bg-primary-500 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
             >
               <Share2 size={24} strokeWidth={1.5} />
-              Compartilhar Resultado
+              Compartilhar
             </button>
           </div>
         </div>
