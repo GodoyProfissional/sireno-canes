@@ -23,7 +23,8 @@ export const GameScreen = ({ state, onFinish }) => {
   useEffect(() => {
     if (currentQuestion) {
       // Perguntas que NÃO têm dicas
-      const noHintTypes = ['image-hotspot', 'route-choice']
+      const noHintTypes = ['image-hotspot', 'route-choice', 'spot-the-error']
+      // Perguntas que TÊM dicas (todos os outros tipos)
       setShowHintButton(!noHintTypes.includes(currentQuestion.type))
     }
   }, [currentQuestion])
@@ -191,7 +192,7 @@ export const GameScreen = ({ state, onFinish }) => {
         maxHints = 0 // SEM DICAS
         break
       case 'spot-the-error':
-        maxHints = 3 // 3 DICAS
+        maxHints = 0 // SEM DICAS
         break
       default:
         maxHints = 1
@@ -509,59 +510,7 @@ export const GameScreen = ({ state, onFinish }) => {
         break
       }
 
-      case 'spot-the-error': {
-        // PERMITE 3 DICAS - Destaca o próximo erro
-        if (hintCount >= 3) {
-          showHintBanner(container, 'Não é possível mais usar dicas nesta pergunta!', true)
-          return
-        }
-
-        const errorSpots = container.querySelectorAll('.error-hotspot')
-        let found = 0
-        let notFound = []
-
-        errorSpots.forEach((spot) => {
-          const ring = spot.querySelector('.marker-ring')
-          if (ring && ring.classList.contains('scale-100')) {
-            found++
-          } else {
-            notFound.push(spot)
-          }
-        })
-
-        if (notFound.length > 0 && found < q.errors.length) {
-          const target = notFound[0]
-          // Destaca em VERDE
-          target.style.border = '4px solid #22c55e'
-          target.style.borderRadius = '50%'
-          target.style.boxShadow = '0 0 25px rgba(34, 197, 94, 0.7)'
-          target.style.transform = 'scale(1.15)'
-          target.classList.add('animate-pulse')
-
-          // Cria uma seta apontando
-          const arrow = document.createElement('div')
-          arrow.className =
-            'absolute -top-10 left-1/2 transform -translate-x-1/2 text-success-500 text-3xl animate-bounce'
-          arrow.innerHTML = '⬇️'
-          target.style.position = 'relative'
-          target.appendChild(arrow)
-
-          setTimeout(() => {
-            target.style.border = ''
-            target.style.borderRadius = ''
-            target.style.boxShadow = ''
-            target.style.transform = ''
-            target.classList.remove('animate-pulse')
-            arrow.remove()
-          }, 4000)
-
-          hintMsg = `Encontre o erro destacado em verde! (${found + 1}/${q.errors.length})`
-        } else {
-          showHintBanner(container, 'Você já encontrou todos os erros!', true)
-          return
-        }
-        break
-      }
+      // SPOT-THE-ERROR REMOVIDO - SEM DICAS
 
       default: {
         showHintBanner(container, 'Tente novamente com mais atenção!')
