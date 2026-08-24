@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import {
   Flag,
   Star,
@@ -11,9 +11,11 @@ import {
   Trophy,
   ShieldCheck,
 } from 'lucide-react'
+import confetti from 'canvas-confetti'
 
 export const ResultsScreen = ({ state, onRestart }) => {
   const { state: gameState, LEVELS_CONFIG, getLevel } = state
+  const confettiTriggered = useRef(false)
 
   const accuracy =
     gameState.totalAttempts > 0
@@ -30,6 +32,114 @@ export const ResultsScreen = ({ state, onRestart }) => {
     const s = (seconds % 60).toString().padStart(2, '0')
     return `${m}:${s}`
   }
+
+  // ===== FOGOS DE ARTIFÍCIO / CONFETES =====
+  useEffect(() => {
+    if (!confettiTriggered.current) {
+      confettiTriggered.current = true
+
+      // Confetes principais
+      const duration = 5 * 1000
+      const end = Date.now() + duration
+
+      const colors = ['#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
+
+      ;(function frame() {
+        // Confete da esquerda
+        confetti({
+          particleCount: 7,
+          angle: 60,
+          spread: 80,
+          origin: { x: 0, y: 0.6 },
+          colors: colors,
+          startVelocity: 30,
+        })
+
+        // Confete da direita
+        confetti({
+          particleCount: 7,
+          angle: 120,
+          spread: 80,
+          origin: { x: 1, y: 0.6 },
+          colors: colors,
+          startVelocity: 30,
+        })
+
+        // Confete do centro (explosão)
+        confetti({
+          particleCount: 15,
+          spread: 100,
+          origin: { x: 0.5, y: 0.4 },
+          colors: colors,
+          startVelocity: 25,
+        })
+
+        // Estrelas
+        confetti({
+          particleCount: 5,
+          spread: 60,
+          origin: { x: 0.3, y: 0.2 },
+          colors: ['#fbbf24', '#f59e0b', '#fcd34d'],
+          shapes: ['star'],
+          startVelocity: 20,
+        })
+
+        confetti({
+          particleCount: 5,
+          spread: 60,
+          origin: { x: 0.7, y: 0.2 },
+          colors: ['#fbbf24', '#f59e0b', '#fcd34d'],
+          shapes: ['star'],
+          startVelocity: 20,
+        })
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame)
+        }
+      })()
+
+      // Segunda rodada de confetes após 2 segundos
+      setTimeout(() => {
+        const end2 = Date.now() + 3000
+        ;(function frame2() {
+          confetti({
+            particleCount: 10,
+            spread: 120,
+            origin: { x: 0.2, y: 0.8 },
+            colors: ['#ec4899', '#8b5cf6', '#06b6d4'],
+            startVelocity: 35,
+          })
+          confetti({
+            particleCount: 10,
+            spread: 120,
+            origin: { x: 0.8, y: 0.8 },
+            colors: ['#ec4899', '#8b5cf6', '#06b6d4'],
+            startVelocity: 35,
+          })
+          if (Date.now() < end2) {
+            requestAnimationFrame(frame2)
+          }
+        })()
+      }, 2000)
+
+      // Terceira rodada após 4 segundos
+      setTimeout(() => {
+        const end3 = Date.now() + 2000
+        ;(function frame3() {
+          confetti({
+            particleCount: 20,
+            spread: 150,
+            origin: { x: 0.5, y: 0.3 },
+            colors: ['#f59e0b', '#ef4444', '#22c55e', '#0ea5e9'],
+            startVelocity: 40,
+          })
+          if (Date.now() < end3) {
+            requestAnimationFrame(frame3)
+          }
+        })()
+      }, 4000)
+    }
+  }, [])
 
   const getMedals = () => {
     const medals = []
@@ -93,20 +203,31 @@ export const ResultsScreen = ({ state, onRestart }) => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4">
-      <div className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden animate-slide-up">
+    <div className="flex items-center justify-center min-h-screen p-4 relative">
+      {/* Overlay de festa com animação */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-transparent to-primary-500/5"></div>
+      </div>
+
+      <div className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden animate-slide-up relative z-10">
         <div className="bg-gradient-to-r from-success-600 to-emerald-500 p-10 text-center text-white relative overflow-hidden">
+          {/* Decoração de festa */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16"></div>
+            <div className="absolute bottom-0 right-0 w-48 h-48 bg-white rounded-full translate-x-24 translate-y-24"></div>
+            <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+          </div>
+
           <Flag
             size={72}
             className="mb-4 relative z-10 animate-bounce-slight mx-auto"
             strokeWidth={1.5}
           />
           <h2 className="text-4xl font-extrabold relative z-10 tracking-tight">
-            Treinamento Concluído!
+            🎉 Treinamento Concluído! 🎉
           </h2>
           <p className="opacity-90 mt-2 text-lg relative z-10">
-            Este quiz foi criado para tornar o ambiente mais seguro e preparar todos para agir
-            corretamente em situações de emergência.
+            Parabéns! Você completou a missão de evacuação com sucesso!
           </p>
         </div>
 

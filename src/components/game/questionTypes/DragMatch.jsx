@@ -8,9 +8,19 @@ export const DragMatch = ({ question, onAnswer }) => {
   const [lines, setLines] = useState([])
   const containerRef = useRef(null)
   const svgRef = useRef(null)
+  const [isComplete, setIsComplete] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    // Inicializar itens
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  useEffect(() => {
     const shuffledLeft = [...question.pairs].sort(() => Math.random() - 0.5)
     const shuffledRight = [
       ...question.pairs.map((p) => p.right),
@@ -35,21 +45,43 @@ export const DragMatch = ({ question, onAnswer }) => {
     setMatches({})
     setLines([])
     setActiveDrag(null)
+    setIsComplete(false)
   }, [question])
 
-  const getCenter = (element, container, isRight) => {
+  // Função para obter o centro do elemento (bolinha)
+  const getCenter = (element, container) => {
     if (!element || !container) return { x: 0, y: 0 }
     const rect = element.getBoundingClientRect()
     const contRect = container.getBoundingClientRect()
-    if (isRight) {
+    return {
+      x: rect.left - contRect.left + rect.width / 2,
+      y: rect.top + rect.height / 2 - contRect.top,
+    }
+  }
+
+  // Função para obter o centro da bolinha dentro do elemento
+  const getBolinhaCenter = (element, container) => {
+    if (!element || !container) return { x: 0, y: 0 }
+    const rect = element.getBoundingClientRect()
+    const contRect = container.getBoundingClientRect()
+
+    // A bolinha está à direita nos itens da esquerda e à esquerda nos itens da direita
+    const isLeft = element.classList.contains('match-left')
+    const bolinhaSize = 16 // tamanho da bolinha (w-4 h-4)
+    const padding = 12 // padding do elemento
+
+    if (isLeft) {
+      // Bolinha fica à direita
       return {
-        x: rect.left - contRect.left + rect.width / 2,
+        x: rect.right - contRect.left - bolinhaSize / 2 - padding / 2,
         y: rect.top + rect.height / 2 - contRect.top,
       }
-    }
-    return {
-      x: rect.right - contRect.left,
-      y: rect.top + rect.height / 2 - contRect.top,
+    } else {
+      // Bolinha fica à esquerda
+      return {
+        x: rect.left - contRect.left + bolinhaSize / 2 + padding / 2,
+        y: rect.top + rect.height / 2 - contRect.top,
+      }
     }
   }
 
@@ -59,7 +91,7 @@ export const DragMatch = ({ question, onAnswer }) => {
 
     const leftEl = e.currentTarget
     const container = containerRef.current
-    const pos = getCenter(leftEl, container, false)
+    const pos = getCenter(leftEl, container)
 
     setActiveDrag({
       leftId: item.id,
@@ -117,7 +149,6 @@ export const DragMatch = ({ question, onAnswer }) => {
         clientY = e.clientY
       }
 
-      // Encontrar o elemento mais próximo na direita
       const rightElements = container.querySelectorAll('.match-right')
       let closestEl = null
       let closestDist = Infinity
@@ -134,21 +165,20 @@ export const DragMatch = ({ question, onAnswer }) => {
         }
       })
 
-      // Verificar se encontrou um alvo próximo (dentro de 100px)
-      if (closestEl && closestDist < 100) {
+      // Aumentei a distância de detecção para 150px
+      if (closestEl && closestDist < 150) {
         const rightText = closestEl.dataset.val
         const leftItem = leftItems.find((item) => item.id === activeDrag.leftId)
 
         if (leftItem && leftItem.right === rightText) {
-          // Conexão correta!
           const leftEl = container.querySelector(`[data-left-id="${activeDrag.leftId}"]`)
           const rightEl = closestEl
 
           if (leftEl && rightEl) {
-            const leftPos = getCenter(leftEl, container, false)
-            const rightPos = getCenter(rightEl, container, true)
+            // Usa a função getBolinhaCenter para conectar as bolinhas
+            const leftPos = getBolinhaCenter(leftEl, container)
+            const rightPos = getBolinhaCenter(rightEl, container)
 
-            // Marcar como conectado
             setMatches((prev) => ({
               ...prev,
               [activeDrag.leftId]: rightText,
@@ -166,7 +196,6 @@ export const DragMatch = ({ question, onAnswer }) => {
               },
             ])
 
-            // Bloquear itens
             setLeftItems((prev) =>
               prev.map((item) =>
                 item.id === activeDrag.leftId ? { ...item, locked: true } : item,
@@ -176,16 +205,16 @@ export const DragMatch = ({ question, onAnswer }) => {
               prev.map((item) => (item.text === rightText ? { ...item, locked: true } : item)),
             )
 
-            // Verificar se todas as conexões foram feitas
             const totalPairs = question.pairs.length
-            if (Object.keys(matches).length + 1 === totalPairs) {
+            const newMatchesCount = Object.keys(matches).length + 1
+            if (newMatchesCount === totalPairs) {
+              setIsComplete(true)
               setTimeout(() => {
                 onAnswer(true)
               }, 600)
             }
           }
         } else {
-          // Conexão errada
           const rightEl = closestEl
           rightEl.classList.add('animate-shake', 'border-danger-500', 'bg-danger-50')
           setTimeout(() => {
@@ -199,14 +228,11 @@ export const DragMatch = ({ question, onAnswer }) => {
     [activeDrag, leftItems, matches, question.pairs.length, onAnswer],
   )
 
-  // Adicionar event listeners globais
   useEffect(() => {
     if (activeDrag) {
       document.addEventListener('mousemove', handleDragMove)
       document.addEventListener('mouseup', handleDragEnd)
-      document.addEventListener('touchmove', handleDragMove, {
-        passive: false,
-      })
+      document.addEventListener('touchmove', handleDragMove, { passive: false })
       document.addEventListener('touchend', handleDragEnd)
 
       return () => {
@@ -217,6 +243,37 @@ export const DragMatch = ({ question, onAnswer }) => {
       }
     }
   }, [activeDrag, handleDragMove, handleDragEnd])
+
+  // Recalcular posições das linhas quando a tela for redimensionada
+  useEffect(() => {
+    const updateLines = () => {
+      const container = containerRef.current
+      if (!container || lines.length === 0) return
+
+      const newLines = lines.map((line) => {
+        const leftEl = container.querySelector(`[data-left-id="${line.leftId}"]`)
+        const rightEl = container.querySelector(`[data-val="${line.rightText}"]`)
+
+        if (leftEl && rightEl) {
+          const leftPos = getBolinhaCenter(leftEl, container)
+          const rightPos = getBolinhaCenter(rightEl, container)
+          return {
+            ...line,
+            x1: leftPos.x,
+            y1: leftPos.y,
+            x2: rightPos.x,
+            y2: rightPos.y,
+          }
+        }
+        return line
+      })
+
+      setLines(newLines)
+    }
+
+    window.addEventListener('resize', updateLines)
+    return () => window.removeEventListener('resize', updateLines)
+  }, [lines])
 
   return (
     <div className="mt-4">
@@ -236,6 +293,7 @@ export const DragMatch = ({ question, onAnswer }) => {
           className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible"
           aria-hidden="true"
         >
+          {/* Linhas já conectadas */}
           {lines.map((line, idx) => (
             <line
               key={idx}
@@ -244,10 +302,11 @@ export const DragMatch = ({ question, onAnswer }) => {
               x2={line.x2}
               y2={line.y2}
               stroke="#22c55e"
-              strokeWidth="4"
+              strokeWidth="3"
               strokeLinecap="round"
             />
           ))}
+          {/* Linha sendo arrastada */}
           {activeDrag && (
             <line
               x1={activeDrag.startX}
@@ -255,7 +314,7 @@ export const DragMatch = ({ question, onAnswer }) => {
               x2={activeDrag.currentX}
               y2={activeDrag.currentY}
               stroke="#0ea5e9"
-              strokeWidth="4"
+              strokeWidth="3"
               strokeLinecap="round"
               strokeDasharray="8,4"
             />
@@ -268,6 +327,7 @@ export const DragMatch = ({ question, onAnswer }) => {
             <div
               key={item.id}
               data-left-id={item.id}
+              data-val={item.id}
               className={`match-left p-3 border-2 rounded-xl shadow-sm text-xs md:text-sm font-bold cursor-grab flex items-center justify-between relative transition-all
                 ${
                   item.locked
@@ -319,7 +379,7 @@ export const DragMatch = ({ question, onAnswer }) => {
         </div>
       </div>
 
-      {Object.keys(matches).length === question.pairs.length && (
+      {isComplete && (
         <div className="mt-4 text-center text-success-500 font-bold animate-fade-in">
           ✅ Todas as conexões foram feitas corretamente!
         </div>

@@ -10,6 +10,8 @@ export const HUD = ({
   levelName,
   levelProgress,
   onUseHint,
+  hintCount = 0,
+  showHintButton = true,
 }) => {
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60)
@@ -34,13 +36,20 @@ export const HUD = ({
             />
           ))}
         </div>
-        <button
-          onClick={onUseHint}
-          className="flex items-center gap-1.5 text-xs bg-warning-100 dark:bg-warning-900/60 text-warning-700 dark:text-warning-400 px-2 py-1 rounded-md border border-warning-200 dark:border-warning-700 shadow-sm transition-colors hover:scale-105"
-        >
-          <Lightbulb size={14} className="text-warning-500" fill="#f59e0b" strokeWidth={1.5} />
-          Dica (<span className="font-bold">{hints}</span>)
-        </button>
+        {showHintButton && (
+          <button
+            onClick={onUseHint}
+            className="flex items-center gap-1.5 text-xs bg-warning-100 dark:bg-warning-900/60 text-warning-700 dark:text-warning-400 px-2 py-1 rounded-md border border-warning-200 dark:border-warning-700 shadow-sm transition-colors hover:scale-105"
+          >
+            <Lightbulb size={14} className="text-warning-500" fill="#f59e0b" strokeWidth={1.5} />
+            Dica (<span className="font-bold">{hints}</span>)
+            {hintCount > 0 && (
+              <span className="ml-1 text-[10px] bg-warning-500 text-white px-1.5 py-0.5 rounded-full">
+                {hintCount}
+              </span>
+            )}
+          </button>
+        )}
       </div>
 
       {/* Nível e Timer */}

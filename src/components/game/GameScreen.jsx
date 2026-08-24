@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { QuestionRenderer } from './QuestionRenderer'
 import { HUD } from '../shared/HUD'
 import { Minimap } from '../shared/Minimap'
@@ -12,10 +12,63 @@ export const GameScreen = ({ state, onFinish }) => {
   const [showFeedback, setShowFeedback] = useState(false)
   const [feedbackData, setFeedbackData] = useState(null)
   const [showGameOver, setShowGameOver] = useState(false)
+  const [hintCount, setHintCount] = useState(0)
+  const [showHintButton, setShowHintButton] = useState(true)
   const { toggleTheme, isDark } = useTheme()
 
   const currentQuestion = state.getCurrentQuestion()
   const isFinished = state.isGameFinished
+
+  // Verificar se a pergunta atual tem dicas
+  useEffect(() => {
+    if (currentQuestion) {
+      // Perguntas que NÃO têm dicas
+      const noHintTypes = ['image-hotspot', 'route-choice']
+      setShowHintButton(!noHintTypes.includes(currentQuestion.type))
+    }
+  }, [currentQuestion])
+
+  // Resetar dicas quando mudar a pergunta
+  useEffect(() => {
+    setHintCount(0)
+    const container = document.getElementById('question-container')
+    if (container) {
+      const banners = container.querySelectorAll('.hint-banner')
+      banners.forEach((b) => b.remove())
+
+      const allElements = container.querySelectorAll('*')
+      allElements.forEach((el) => {
+        el.classList.remove(
+          'border-warning-500',
+          'bg-warning-100',
+          'dark:bg-warning-900/30',
+          'animate-pulse',
+          'scale-110',
+          'scale-105',
+          'border-success-500',
+          'bg-success-50',
+          'dark:bg-success-900/40',
+          'bg-success-100',
+          'dark:bg-success-900/30',
+          'shadow-[0_0_15px_rgba(34,197,94,0.5)]',
+          'shadow-[0_0_20px_rgba(34,197,94,0.6)]',
+          'opacity-50',
+          'line-through',
+          'ring-4',
+          'ring-success-300',
+        )
+        el.style.opacity = ''
+        el.style.pointerEvents = ''
+        el.disabled = false
+        el.style.border = ''
+        el.style.borderRadius = ''
+        el.style.boxShadow = ''
+      })
+
+      const arrows = container.querySelectorAll('.animate-bounce')
+      arrows.forEach((arrow) => arrow.remove())
+    }
+  }, [state.state.questionIndex])
 
   useEffect(() => {
     if (isFinished) {
@@ -50,38 +103,158 @@ export const GameScreen = ({ state, onFinish }) => {
   const handleGameOverContinue = () => {
     setShowGameOver(false)
     state.resetLives()
-    // Recarrega a pergunta atual
   }
 
+  // ===== MOSTRA BANNER =====
+  const showHintBanner = (container, message, isWarning = false) => {
+    if (!container) return
+
+    const oldBanner = container.querySelector('.hint-banner')
+    if (oldBanner) oldBanner.remove()
+
+    const banner = document.createElement('div')
+    const bgClass = isWarning ? 'bg-gray-500' : 'bg-warning-500'
+    banner.className = `hint-banner absolute top-4 left-1/2 transform -translate-x-1/2 ${bgClass} text-white px-4 py-3 rounded-full shadow-lg text-sm md:text-base font-bold z-50 animate-slide-up w-max max-w-[90%] text-center border-2 ${isWarning ? 'border-gray-400' : 'border-warning-400'}`
+    banner.setAttribute('role', 'alert')
+    banner.innerHTML = `<span class="mr-2">💡</span> ${message}`
+    container.appendChild(banner)
+
+    setTimeout(() => {
+      banner.classList.add('opacity-0', 'translate-y-[-20px]')
+      setTimeout(() => banner.remove(), 300)
+    }, 4000)
+  }
+
+  // ===== LIMPA DESTAQUES =====
+  const clearHighlights = (container) => {
+    if (!container) return
+    const elements = container.querySelectorAll(
+      '.match-left, .match-right, .seq-item, .bubble-btn, .route-btn, .error-hotspot, .hotspot-area',
+    )
+    elements.forEach((el) => {
+      el.classList.remove(
+        'border-warning-500',
+        'bg-warning-100',
+        'dark:bg-warning-900/30',
+        'animate-pulse',
+        'scale-110',
+        'scale-105',
+        'border-success-500',
+        'bg-success-50',
+        'dark:bg-success-900/40',
+        'shadow-[0_0_15px_rgba(34,197,94,0.5)]',
+        'ring-4',
+        'ring-success-300',
+        'shadow-[0_0_20px_rgba(34,197,94,0.6)]',
+      )
+      el.style.opacity = ''
+      el.style.pointerEvents = ''
+      el.disabled = false
+    })
+  }
+
+  // ===== SISTEMA DE DICAS =====
   const handleUseHint = () => {
+    // Se a pergunta não tem dicas, não faz nada
+    if (!showHintButton) {
+      return
+    }
+
     if (state.state.hints <= 0) {
       alert('Você já usou todas as suas dicas!')
       return
     }
 
+    const q = currentQuestion
+    const container = document.getElementById('question-container')
+    if (!container) return
+
+    // Define máximo de dicas por tipo
+    let maxHints = 0
+    switch (q.type) {
+      case 'multiple-choice':
+        maxHints = 2
+        break
+      case 'drag-match':
+        maxHints = 1
+        break
+      case 'sequence':
+        maxHints = 3
+        break
+      case 'bubble-select':
+        maxHints = 3
+        break
+      case 'image-hotspot':
+        maxHints = 0 // SEM DICAS
+        break
+      case 'route-choice':
+        maxHints = 0 // SEM DICAS
+        break
+      case 'spot-the-error':
+        maxHints = 3 // 3 DICAS
+        break
+      default:
+        maxHints = 1
+    }
+
+    // Se não tem dicas permitidas
+    if (maxHints === 0) {
+      return
+    }
+
+    // Se já usou todas as dicas permitidas
+    if (hintCount >= maxHints) {
+      showHintBanner(container, 'Não é possível mais usar dicas nesta pergunta!', true)
+      return
+    }
+
+    // CONSUME A DICA
     state.state.hints--
     state.state.xp = Math.max(0, state.state.xp - 50)
     state.updateHUD()
+    setHintCount((prev) => prev + 1)
 
-    const q = currentQuestion
     let hintMsg = ''
 
-    const oldBanner = document.querySelector('.hint-banner')
-    if (oldBanner) oldBanner.remove()
+    // ===== LIMPA DESTAQUES ANTERIORES =====
+    clearHighlights(container)
 
+    // ===== LÓGICA DE DICA POR TIPO =====
     switch (q.type) {
       case 'multiple-choice': {
-        const btns = document.querySelectorAll('button[data-opt]')
+        const btns = container.querySelectorAll('button[data-opt]')
+        let activeBtns = []
         let wrongOptions = []
+
         btns.forEach((b) => {
-          if (b.dataset.opt !== q.correctAnswer) {
-            wrongOptions.push(b)
+          if (!b.disabled && b.style.opacity !== '0.3') {
+            activeBtns.push(b)
+            if (b.dataset.opt !== q.correctAnswer) {
+              wrongOptions.push(b)
+            }
           }
         })
+
+        if (activeBtns.length <= 1) {
+          showHintBanner(container, 'Somente a resposta ativa!', true)
+          return
+        }
+
+        let toRemove = hintCount === 0 ? 2 : 1
+
+        if (wrongOptions.length === 0 || toRemove > wrongOptions.length) {
+          if (activeBtns.length > 1) {
+            showHintBanner(container, 'Não há mais alternativas erradas para remover!', true)
+          } else {
+            showHintBanner(container, 'Somente a resposta ativa!', true)
+          }
+          return
+        }
+
         wrongOptions.sort(() => Math.random() - 0.5)
         let removed = 0
         for (let b of wrongOptions) {
-          if (removed < 2) {
+          if (removed < toRemove && !b.disabled) {
             b.style.opacity = '0.3'
             b.style.pointerEvents = 'none'
             b.disabled = true
@@ -89,111 +262,181 @@ export const GameScreen = ({ state, onFinish }) => {
             removed++
           }
         }
-        hintMsg = `💡 ${removed} alternativas erradas foram removidas!`
+
+        const remaining = container.querySelectorAll('button[data-opt]:not([disabled])').length
+        hintMsg = `${removed} alternativa(s) errada(s) removida(s)! Restam ${remaining} opções.`
         break
       }
 
       case 'drag-match': {
-        const leftItems = document.querySelectorAll('.match-left:not(.locked)')
-        const rightItems = document.querySelectorAll('.match-right:not(.locked)')
+        const leftItems = container.querySelectorAll('.match-left:not(.locked)')
 
-        if (leftItems.length === 0 && rightItems.length === 0) {
-          hintMsg = '💡 Todas as conexões já foram feitas!'
-          break
+        if (leftItems.length === 0) {
+          showHintBanner(
+            container,
+            'Todas as conexões já foram feitas! Confirme sua resposta.',
+            true,
+          )
+          return
         }
 
-        const availablePairs = q.pairs.filter((p) => {
-          const leftEl = document.querySelector(`.match-left[data-val="${p.left}"]`)
-          return leftEl && !leftEl.classList.contains('locked')
-        })
+        let pairFound = false
+        for (const pair of q.pairs) {
+          const leftEl = container.querySelector(`.match-left[data-val="${pair.left}"]`)
+          if (leftEl && !leftEl.classList.contains('locked')) {
+            const rightEl = container.querySelector(`.match-right[data-val="${pair.right}"]`)
 
-        if (availablePairs.length > 0) {
-          const pair = availablePairs[0]
-          const leftEl = document.querySelector(`.match-left[data-val="${pair.left}"]`)
-          const rightEl = document.querySelector(`.match-right[data-val="${pair.right}"]`)
-
-          if (leftEl && rightEl) {
-            leftEl.classList.add(
-              'border-warning-500',
-              'bg-warning-100',
-              'dark:bg-warning-900/30',
-              'animate-pulse',
-            )
-            rightEl.classList.add(
-              'border-warning-500',
-              'bg-warning-100',
-              'dark:bg-warning-900/30',
-              'animate-pulse',
-            )
-
-            setTimeout(() => {
-              leftEl.classList.remove(
-                'border-warning-500',
-                'bg-warning-100',
-                'dark:bg-warning-900/30',
-                'animate-pulse',
+            if (leftEl && rightEl) {
+              leftEl.classList.add(
+                'border-success-500',
+                'bg-success-50',
+                'dark:bg-success-900/40',
+                'scale-105',
+                'shadow-[0_0_15px_rgba(34,197,94,0.5)]',
               )
-              rightEl.classList.remove(
-                'border-warning-500',
-                'bg-warning-100',
-                'dark:bg-warning-900/30',
-                'animate-pulse',
+              rightEl.classList.add(
+                'border-success-500',
+                'bg-success-50',
+                'dark:bg-success-900/40',
+                'scale-105',
+                'shadow-[0_0_15px_rgba(34,197,94,0.5)]',
               )
-            }, 3000)
 
-            hintMsg = `💡 Tente conectar "${pair.left}" com "${pair.right}"`
+              hintMsg = `Conecte "${pair.left}" com "${pair.right}" (destacado em verde)`
+              pairFound = true
+              break
+            }
           }
-        } else {
-          hintMsg = '💡 Todas as conexões já foram feitas! Confirme sua resposta.'
+        }
+
+        if (!pairFound) {
+          showHintBanner(
+            container,
+            'Todas as conexões já foram feitas! Confirme sua resposta.',
+            true,
+          )
+          return
         }
         break
       }
 
       case 'sequence': {
-        const target = document.querySelector('#seq-target')
+        if (hintCount >= 3) {
+          showHintBanner(container, 'Não é possível mais usar dicas nesta pergunta!', true)
+          return
+        }
+
+        const target = container.querySelector('#seq-target')
         const currentItems = target ? target.querySelectorAll('.seq-item') : []
-        const nextIndex = currentItems.length
+        const placedCount = currentItems.length
 
-        if (nextIndex < q.steps.length) {
-          const nextStep = q.steps[nextIndex]
-          const poolItems = document.querySelectorAll('#seq-pool .seq-item')
+        if (placedCount >= q.steps.length) {
+          showHintBanner(
+            container,
+            'Todos os itens já estão na ordem! Confirme sua resposta.',
+            true,
+          )
+          return
+        }
 
-          let found = false
-          poolItems.forEach((item) => {
-            if (item.dataset.val === nextStep) {
-              item.classList.add(
-                'border-warning-500',
-                'bg-warning-100',
-                'dark:bg-warning-900/30',
-                'animate-pulse',
+        const nextStep = q.steps[placedCount]
+        const poolItems = container.querySelectorAll('#seq-pool .seq-item')
+        let found = false
+
+        poolItems.forEach((item) => {
+          if (item.dataset.val === nextStep) {
+            item.classList.add(
+              'border-success-500',
+              'bg-success-50',
+              'dark:bg-success-900/40',
+              'scale-110',
+              'animate-pulse',
+              'shadow-[0_0_20px_rgba(34,197,94,0.6)]',
+              'ring-4',
+              'ring-success-300',
+            )
+            setTimeout(() => {
+              item.classList.remove(
+                'border-success-500',
+                'bg-success-50',
+                'dark:bg-success-900/40',
                 'scale-110',
+                'animate-pulse',
+                'shadow-[0_0_20px_rgba(34,197,94,0.6)]',
+                'ring-4',
+                'ring-success-300',
               )
-              setTimeout(() => {
-                item.classList.remove(
-                  'border-warning-500',
-                  'bg-warning-100',
-                  'dark:bg-warning-900/30',
-                  'animate-pulse',
-                  'scale-110',
-                )
-              }, 3000)
-              found = true
-            }
-          })
-
-          if (found) {
-            hintMsg = `💡 O próximo item correto é: "${nextStep}"`
-          } else {
-            hintMsg = '💡 Você já colocou todos os itens na ordem! Confirme sua resposta.'
+            }, 3000)
+            found = true
           }
+        })
+
+        if (found) {
+          const position = placedCount + 1
+          hintMsg = `Próximo item (posição ${position}): "${nextStep}" (destacado em verde)`
         } else {
-          hintMsg = '💡 Todos os itens já estão na ordem! Confirme sua resposta.'
+          let nextMissing = null
+          const placedSteps = Array.from(currentItems).map((el) => el.dataset.val)
+
+          for (let i = 0; i < q.steps.length; i++) {
+            const step = q.steps[i]
+            if (!placedSteps.includes(step)) {
+              nextMissing = step
+              break
+            }
+          }
+
+          if (nextMissing) {
+            poolItems.forEach((item) => {
+              if (item.dataset.val === nextMissing) {
+                item.classList.add(
+                  'border-success-500',
+                  'bg-success-50',
+                  'dark:bg-success-900/40',
+                  'scale-110',
+                  'animate-pulse',
+                  'shadow-[0_0_20px_rgba(34,197,94,0.6)]',
+                  'ring-4',
+                  'ring-success-300',
+                )
+                setTimeout(() => {
+                  item.classList.remove(
+                    'border-success-500',
+                    'bg-success-50',
+                    'dark:bg-success-900/40',
+                    'scale-110',
+                    'animate-pulse',
+                    'shadow-[0_0_20px_rgba(34,197,94,0.6)]',
+                    'ring-4',
+                    'ring-success-300',
+                  )
+                }, 3000)
+                found = true
+                const correctPosition = q.steps.indexOf(nextMissing) + 1
+                hintMsg = `Próximo item (posição ${correctPosition}): "${nextMissing}" (destacado em verde)`
+              }
+            })
+          }
+
+          if (!found) {
+            showHintBanner(
+              container,
+              'Todos os itens já estão na ordem! Confirme sua resposta.',
+              true,
+            )
+            return
+          }
         }
         break
       }
 
       case 'bubble-select': {
-        const bubbles = document.querySelectorAll('.bubble-btn')
+        if (hintCount >= 3) {
+          showHintBanner(container, 'Não é possível mais usar dicas nesta pergunta!', true)
+          return
+        }
+
+        const bubbles = container.querySelectorAll('.bubble-btn:not(.disabled)')
         let wrongBubbles = []
         let correctBubbles = []
 
@@ -206,107 +449,74 @@ export const GameScreen = ({ state, onFinish }) => {
           }
         })
 
-        wrongBubbles.sort(() => Math.random() - 0.5)
-        let removed = 0
-        for (let btn of wrongBubbles) {
-          if (removed < 2) {
-            btn.style.opacity = '0.2'
-            btn.style.pointerEvents = 'none'
-            btn.disabled = true
-            btn.classList.add('opacity-50', 'line-through')
-            removed++
-          }
+        if (wrongBubbles.length === 0) {
+          showHintBanner(container, 'Todas as opções incorretas já foram removidas!', true)
+          return
         }
 
-        if (removed > 0) {
-          hintMsg = `💡 ${removed} opções incorretas foram removidas!`
-        } else {
-          correctBubbles.sort(() => Math.random() - 0.5)
-          let highlighted = 0
-          for (let btn of correctBubbles) {
-            if (highlighted < 2 && !btn.classList.contains('border-primary-500')) {
-              btn.classList.add(
-                'border-warning-500',
-                'bg-warning-100',
-                'dark:bg-warning-900/30',
-                'animate-pulse',
-              )
-              setTimeout(() => {
-                btn.classList.remove(
-                  'border-warning-500',
-                  'bg-warning-100',
-                  'dark:bg-warning-900/30',
+        let toRemove = 0
+        if (hintCount === 0) toRemove = Math.min(2, wrongBubbles.length)
+        else if (hintCount === 1) toRemove = Math.min(2, wrongBubbles.length)
+        else if (hintCount === 2) toRemove = Math.min(1, wrongBubbles.length)
+        else toRemove = 0
+
+        if (toRemove === 0 || wrongBubbles.length === 0) {
+          if (wrongBubbles.length > 0) {
+            correctBubbles.sort(() => Math.random() - 0.5)
+            let highlighted = 0
+            for (let btn of correctBubbles) {
+              if (highlighted < 2 && !btn.classList.contains('border-primary-500')) {
+                btn.classList.add(
+                  'border-success-500',
+                  'bg-success-100',
+                  'dark:bg-success-900/30',
                   'animate-pulse',
+                  'shadow-[0_0_15px_rgba(34,197,94,0.5)]',
                 )
-              }, 3000)
-              highlighted++
+                setTimeout(() => {
+                  btn.classList.remove(
+                    'border-success-500',
+                    'bg-success-100',
+                    'dark:bg-success-900/30',
+                    'animate-pulse',
+                    'shadow-[0_0_15px_rgba(34,197,94,0.5)]',
+                  )
+                }, 3000)
+                highlighted++
+              }
+            }
+            hintMsg = 'Preste atenção nas opções destacadas em verde!'
+          } else {
+            showHintBanner(container, 'Todas as opções incorretas já foram removidas!', true)
+            return
+          }
+        } else {
+          wrongBubbles.sort(() => Math.random() - 0.5)
+          let removed = 0
+          for (let btn of wrongBubbles) {
+            if (removed < toRemove && !btn.disabled) {
+              btn.style.opacity = '0.2'
+              btn.style.pointerEvents = 'none'
+              btn.disabled = true
+              btn.classList.add('opacity-50', 'line-through')
+              removed++
             }
           }
-          hintMsg = '💡 Preste atenção nas opções destacadas!'
+
+          const remaining = container.querySelectorAll('.bubble-btn:not(.disabled)').length
+          hintMsg = `${removed} opção(ões) incorreta(s) removida(s)! Restam ${remaining} opções.`
         }
-        break
-      }
-
-      case 'image-hotspot': {
-        const hotspots = document.querySelectorAll('.hotspot-area')
-        const correctHotspots = []
-
-        hotspots.forEach((spot) => {
-          if (spot.dataset.correct === 'true' && !spot.querySelector('.lucide-check')) {
-            correctHotspots.push(spot)
-          }
-        })
-
-        if (correctHotspots.length > 0) {
-          const target = correctHotspots[0]
-          const ring = document.createElement('div')
-          ring.className =
-            'absolute inset-0 rounded-full border-4 border-warning-500 animate-ping pointer-events-none'
-          ring.style.animation = 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite'
-          target.style.position = 'relative'
-          target.appendChild(ring)
-
-          setTimeout(() => {
-            ring.remove()
-          }, 3000)
-
-          hintMsg = '💡 Clique na área destacada em amarelo!'
-        } else {
-          hintMsg = '💡 O hotspot correto já foi encontrado!'
-        }
-        break
-      }
-
-      case 'route-choice': {
-        const routeBtns = document.querySelectorAll('.route-btn')
-
-        routeBtns.forEach((btn) => {
-          if (btn.dataset.correct === 'true') {
-            btn.classList.add(
-              'border-warning-500',
-              'bg-warning-50',
-              'dark:bg-warning-900/20',
-              'animate-pulse',
-              'scale-105',
-            )
-            setTimeout(() => {
-              btn.classList.remove(
-                'border-warning-500',
-                'bg-warning-50',
-                'dark:bg-warning-900/20',
-                'animate-pulse',
-                'scale-105',
-              )
-            }, 3000)
-          }
-        })
-
-        hintMsg = '💡 A rota segura está destacada em amarelo!'
         break
       }
 
       case 'spot-the-error': {
-        const errorSpots = document.querySelectorAll('.error-hotspot')
+        // PERMITE 3 DICAS - Destaca o próximo erro
+        if (hintCount >= 3) {
+          showHintBanner(container, 'Não é possível mais usar dicas nesta pergunta!', true)
+          return
+        }
+
+        const errorSpots = container.querySelectorAll('.error-hotspot')
         let found = 0
         let notFound = []
 
@@ -321,50 +531,45 @@ export const GameScreen = ({ state, onFinish }) => {
 
         if (notFound.length > 0 && found < q.errors.length) {
           const target = notFound[0]
-          target.classList.add('animate-pulse')
-          target.style.border = '4px solid #f59e0b'
+          // Destaca em VERDE
+          target.style.border = '4px solid #22c55e'
           target.style.borderRadius = '50%'
+          target.style.boxShadow = '0 0 25px rgba(34, 197, 94, 0.7)'
+          target.style.transform = 'scale(1.15)'
+          target.classList.add('animate-pulse')
 
+          // Cria uma seta apontando
           const arrow = document.createElement('div')
           arrow.className =
-            'absolute -top-8 left-1/2 transform -translate-x-1/2 text-warning-500 text-2xl animate-bounce'
+            'absolute -top-10 left-1/2 transform -translate-x-1/2 text-success-500 text-3xl animate-bounce'
           arrow.innerHTML = '⬇️'
           target.style.position = 'relative'
           target.appendChild(arrow)
 
           setTimeout(() => {
-            target.classList.remove('animate-pulse')
             target.style.border = ''
+            target.style.borderRadius = ''
+            target.style.boxShadow = ''
+            target.style.transform = ''
+            target.classList.remove('animate-pulse')
             arrow.remove()
-          }, 3000)
+          }, 4000)
 
-          hintMsg = `💡 Encontre o erro destacado! (${found + 1}/${q.errors.length})`
+          hintMsg = `Encontre o erro destacado em verde! (${found + 1}/${q.errors.length})`
         } else {
-          hintMsg = '💡 Você já encontrou todos os erros!'
+          showHintBanner(container, 'Você já encontrou todos os erros!', true)
+          return
         }
         break
       }
 
       default: {
-        hintMsg = '💡 Tente novamente com mais atenção!'
-        break
+        showHintBanner(container, 'Tente novamente com mais atenção!')
+        return
       }
     }
 
-    const container = document.getElementById('question-container')
-    if (container) {
-      const banner = document.createElement('div')
-      banner.className =
-        'hint-banner absolute top-4 left-1/2 transform -translate-x-1/2 bg-warning-500 text-white dark:text-white px-4 py-3 rounded-full shadow-lg text-sm md:text-base font-bold z-50 animate-slide-up w-max max-w-[90%] text-center border-2 border-warning-400'
-      banner.setAttribute('role', 'alert')
-      banner.innerHTML = `<span class="mr-2">💡</span> ${hintMsg}`
-      container.appendChild(banner)
-
-      setTimeout(() => {
-        banner.classList.add('opacity-0', 'translate-y-[-20px]')
-        setTimeout(() => banner.remove(), 300)
-      }, 3500)
-    }
+    showHintBanner(container, hintMsg)
   }
 
   if (!currentQuestion) {
@@ -401,6 +606,8 @@ export const GameScreen = ({ state, onFinish }) => {
         levelName={state.LEVELS_CONFIG[state.getLevel(state.state.xp)].name}
         levelProgress={state.getLevelProgress(state.state.xp)}
         onUseHint={handleUseHint}
+        hintCount={hintCount}
+        showHintButton={showHintButton}
       />
 
       <div

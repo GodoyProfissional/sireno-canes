@@ -14,7 +14,7 @@ const getInitialState = () => ({
   xp: 0,
   combo: 0,
   lives: 3,
-  hints: 10,
+  hints: 50, // Quantidade de dicas / Ajustar sempre para 10
   timeElapsed: 0,
   level: 0,
   lastAnswerCorrect: false,
