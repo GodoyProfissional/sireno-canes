@@ -48,41 +48,34 @@ export const DragMatch = ({ question, onAnswer }) => {
     setIsComplete(false)
   }, [question])
 
-  // Função para obter o centro do elemento (bolinha)
-  const getCenter = (element, container) => {
-    if (!element || !container) return { x: 0, y: 0 }
-    const rect = element.getBoundingClientRect()
-    const contRect = container.getBoundingClientRect()
-    return {
-      x: rect.left - contRect.left + rect.width / 2,
-      y: rect.top + rect.height / 2 - contRect.top,
-    }
-  }
-
-  // Função para obter o centro da bolinha dentro do elemento
+  // Função para obter o centro da bolinha
   const getBolinhaCenter = (element, container) => {
     if (!element || !container) return { x: 0, y: 0 }
     const rect = element.getBoundingClientRect()
     const contRect = container.getBoundingClientRect()
 
-    // A bolinha está à direita nos itens da esquerda e à esquerda nos itens da direita
     const isLeft = element.classList.contains('match-left')
-    const bolinhaSize = 16 // tamanho da bolinha (w-4 h-4)
-    const padding = 12 // padding do elemento
+    const bolinhaSize = 16
+    const padding = 12
 
     if (isLeft) {
-      // Bolinha fica à direita
       return {
         x: rect.right - contRect.left - bolinhaSize / 2 - padding / 2,
         y: rect.top + rect.height / 2 - contRect.top,
       }
     } else {
-      // Bolinha fica à esquerda
       return {
         x: rect.left - contRect.left + bolinhaSize / 2 + padding / 2,
         y: rect.top + rect.height / 2 - contRect.top,
       }
     }
+  }
+
+  // Função para verificar se um ponto está dentro de um elemento
+  const isPointInsideElement = (x, y, element) => {
+    if (!element) return false
+    const rect = element.getBoundingClientRect()
+    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
   }
 
   const handleDragStart = (e, item) => {
@@ -91,7 +84,7 @@ export const DragMatch = ({ question, onAnswer }) => {
 
     const leftEl = e.currentTarget
     const container = containerRef.current
-    const pos = getCenter(leftEl, container)
+    const pos = getBolinhaCenter(leftEl, container)
 
     setActiveDrag({
       leftId: item.id,
@@ -149,33 +142,36 @@ export const DragMatch = ({ question, onAnswer }) => {
         clientY = e.clientY
       }
 
+      // Verifica se o mouse/touch está sobre algum elemento da direita
       const rightElements = container.querySelectorAll('.match-right')
-      let closestEl = null
-      let closestDist = Infinity
+      let targetElement = null
 
-      rightElements.forEach((el) => {
-        if (el.classList.contains('locked')) return
-        const rect = el.getBoundingClientRect()
-        const centerX = rect.left + rect.width / 2
-        const centerY = rect.top + rect.height / 2
-        const dist = Math.sqrt(Math.pow(clientX - centerX, 2) + Math.pow(clientY - centerY, 2))
-        if (dist < closestDist) {
-          closestDist = dist
-          closestEl = el
-        }
-      })
+      // Esconde o SVG temporariamente para o elementFromPoint funcionar
+      const svg = container.querySelector('svg')
+      if (svg) svg.style.display = 'none'
 
-      // Aumentei a distância de detecção para 150px
-      if (closestEl && closestDist < 150) {
-        const rightText = closestEl.dataset.val
+      // Usa elementFromPoint para encontrar o elemento exato sob o cursor
+      const elementAtPoint = document.elementFromPoint(clientX, clientY)
+
+      // Restaura o SVG
+      if (svg) svg.style.display = ''
+
+      // Verifica se o elemento encontrado é um .match-right ou está dentro de um
+      if (elementAtPoint) {
+        targetElement = elementAtPoint.closest('.match-right')
+      }
+
+      // Se encontrou um elemento alvo e ele não está bloqueado
+      if (targetElement && !targetElement.classList.contains('locked')) {
+        const rightText = targetElement.dataset.val
         const leftItem = leftItems.find((item) => item.id === activeDrag.leftId)
 
         if (leftItem && leftItem.right === rightText) {
+          // CONEXÃO CORRETA!
           const leftEl = container.querySelector(`[data-left-id="${activeDrag.leftId}"]`)
-          const rightEl = closestEl
+          const rightEl = targetElement
 
           if (leftEl && rightEl) {
-            // Usa a função getBolinhaCenter para conectar as bolinhas
             const leftPos = getBolinhaCenter(leftEl, container)
             const rightPos = getBolinhaCenter(rightEl, container)
 
@@ -215,10 +211,10 @@ export const DragMatch = ({ question, onAnswer }) => {
             }
           }
         } else {
-          const rightEl = closestEl
-          rightEl.classList.add('animate-shake', 'border-danger-500', 'bg-danger-50')
+          // CONEXÃO ERRADA - mostra erro
+          targetElement.classList.add('animate-shake', 'border-danger-500', 'bg-danger-50')
           setTimeout(() => {
-            rightEl.classList.remove('animate-shake', 'border-danger-500', 'bg-danger-50')
+            targetElement.classList.remove('animate-shake', 'border-danger-500', 'bg-danger-50')
           }, 500)
         }
       }
@@ -293,7 +289,6 @@ export const DragMatch = ({ question, onAnswer }) => {
           className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible"
           aria-hidden="true"
         >
-          {/* Linhas já conectadas */}
           {lines.map((line, idx) => (
             <line
               key={idx}
@@ -306,7 +301,6 @@ export const DragMatch = ({ question, onAnswer }) => {
               strokeLinecap="round"
             />
           ))}
-          {/* Linha sendo arrastada */}
           {activeDrag && (
             <line
               x1={activeDrag.startX}

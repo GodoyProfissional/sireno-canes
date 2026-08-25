@@ -16,6 +16,9 @@ import confetti from 'canvas-confetti'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 
+// ==== MESMA ABORDAGEM DO questions.js ====
+const SirenoItens = '/imagens/Sireno-itensbrigada.png';
+
 export const ResultsScreen = ({ state, onRestart }) => {
   const { state: gameState, LEVELS_CONFIG, getLevel } = state
   const confettiTriggered = useRef(false)
@@ -133,7 +136,7 @@ export const ResultsScreen = ({ state, onRestart }) => {
     }
   }, [])
 
-  // ===== GERAR PDF COM GABARITO =====
+  // ===== GERAR PDF =====
   const generatePDF = async () => {
     setIsGeneratingPDF(true)
 
@@ -150,7 +153,6 @@ export const ResultsScreen = ({ state, onRestart }) => {
         color: #1a1a2e;
       `
 
-      // Cabeçalho do PDF
       container.innerHTML = `
         <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #0ea5e9; padding-bottom: 20px;">
           <h1 style="color: #0ea5e9; font-size: 28px; margin: 0;">📋 Gabarito - Missão de Evacuação</h1>
@@ -167,7 +169,6 @@ export const ResultsScreen = ({ state, onRestart }) => {
           <div style="margin-top: 15px;">
       `
 
-      // Adicionar cada pergunta com sua resposta correta
       questionsDB.forEach((q, index) => {
         let resposta = ''
         let detalhe = ''
@@ -353,91 +354,103 @@ export const ResultsScreen = ({ state, onRestart }) => {
       </div>
 
       <div className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden animate-slide-up relative z-10">
-        <div className="bg-gradient-to-r from-success-600 to-emerald-500 p-10 text-center text-white relative overflow-hidden">
+        {/* ===== HEADER COM SIRENO ===== */}
+        <div className="bg-gradient-to-r from-success-600 to-emerald-500 p-8 text-center text-white relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16"></div>
             <div className="absolute bottom-0 right-0 w-48 h-48 bg-white rounded-full translate-x-24 translate-y-24"></div>
             <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
           </div>
 
-          <Flag
-            size={72}
-            className="mb-4 relative z-10 animate-bounce-slight mx-auto"
-            strokeWidth={1.5}
-          />
-          <h2 className="text-4xl font-extrabold relative z-10 tracking-tight">
-            🎉 Treinamento Concluído! 🎉
-          </h2>
-          <p className="opacity-90 mt-2 text-lg relative z-10">
-            Parabéns! Você completou a missão de evacuação com sucesso!
-          </p>
+          {/* SIRENO COM ITENS DA BRIGADA */}
+          <div className="relative z-10 flex flex-col items-center">
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white/50 shadow-2xl overflow-hidden bg-white/10 backdrop-blur-sm mb-4">
+              <img
+                src={SirenoItens}
+                alt="Sireno - Itens da Brigada"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <Flag
+              size={48}
+              className="absolute -top-2 -right-2 z-20 text-yellow-300 animate-bounce-slight"
+              strokeWidth={1.5}
+              fill="#fbbf24"
+            />
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+              🎉 Treinamento Concluído! 🎉
+            </h2>
+            <p className="opacity-90 mt-1 text-base md:text-lg">
+              Parabéns! Você completou a missão de evacuação com sucesso!
+            </p>
+          </div>
         </div>
 
-        <div className="p-8 md:p-10">
+        <div className="p-6 md:p-10">
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-2xl text-center border border-gray-100 dark:border-gray-600 shadow-sm">
-              <Star size={32} className="text-warning-500 mb-2 mx-auto" fill="#f59e0b" />
+            <div className="bg-gray-50 dark:bg-gray-700/50 p-4 md:p-5 rounded-2xl text-center border border-gray-100 dark:border-gray-600 shadow-sm">
+              <Star size={28} className="text-warning-500 mb-2 mx-auto" fill="#f59e0b" />
               <div className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold">
                 XP Total
               </div>
-              <div className="text-3xl font-extrabold text-gray-900 dark:text-white">
+              <div className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white">
                 {gameState.xp}
               </div>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-2xl text-center border border-gray-100 dark:border-gray-600 shadow-sm">
-              <Target size={32} className="text-primary-500 mb-2 mx-auto" strokeWidth={1.5} />
+            <div className="bg-gray-50 dark:bg-gray-700/50 p-4 md:p-5 rounded-2xl text-center border border-gray-100 dark:border-gray-600 shadow-sm">
+              <Target size={28} className="text-primary-500 mb-2 mx-auto" strokeWidth={1.5} />
               <div className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold">
                 Precisão
               </div>
-              <div className="text-3xl font-extrabold text-gray-900 dark:text-white">
+              <div className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white">
                 {accuracy}%
               </div>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-2xl text-center border border-gray-100 dark:border-gray-600 shadow-sm">
-              <Timer size={32} className="text-blue-500 mb-2 mx-auto" strokeWidth={1.5} />
+            <div className="bg-gray-50 dark:bg-gray-700/50 p-4 md:p-5 rounded-2xl text-center border border-gray-100 dark:border-gray-600 shadow-sm">
+              <Timer size={28} className="text-blue-500 mb-2 mx-auto" strokeWidth={1.5} />
               <div className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold">
                 Tempo
               </div>
-              <div className="text-3xl font-extrabold text-gray-900 dark:text-white">
+              <div className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white">
                 {formatTime(gameState.timeElapsed)}
               </div>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-2xl text-center border border-gray-100 dark:border-gray-600 shadow-sm">
-              <TrendingUp size={32} className="text-purple-500 mb-2 mx-auto" strokeWidth={1.5} />
+            <div className="bg-gray-50 dark:bg-gray-700/50 p-4 md:p-5 rounded-2xl text-center border border-gray-100 dark:border-gray-600 shadow-sm">
+              <TrendingUp size={28} className="text-purple-500 mb-2 mx-auto" strokeWidth={1.5} />
               <div className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold">
                 Nível Final
               </div>
-              <div className="text-xl font-bold text-gray-900 dark:text-white mt-1 leading-tight">
+              <div className="text-base md:text-xl font-bold text-gray-900 dark:text-white mt-1 leading-tight">
                 {levelConfig.name}
               </div>
             </div>
           </div>
 
           {/* Medals */}
-          <div className="mb-10">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 text-center flex items-center justify-center gap-2">
-              <Medal size={24} className="text-warning-500" />
+          <div className="mb-8">
+            <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4 text-center flex items-center justify-center gap-2">
+              <Medal size={22} className="text-warning-500" />
               Conquistas
             </h3>
-            <div className="flex flex-wrap justify-center gap-6">
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6">
               {getMedals().map((medal, index) => {
                 const IconComponent = medal.icon
                 return (
                   <div
                     key={index}
-                    className="flex flex-col items-center gap-3 transform hover:scale-110 transition-all cursor-default group"
+                    className="flex flex-col items-center gap-2 transform hover:scale-110 transition-all cursor-default group"
                   >
                     <div
-                      className={`w-20 h-20 rounded-full ${medal.bg} flex items-center justify-center border-4 ${medal.border} shadow-lg relative overflow-hidden`}
+                      className={`w-16 h-16 md:w-20 md:h-20 rounded-full ${medal.bg} flex items-center justify-center border-4 ${medal.border} shadow-lg relative overflow-hidden`}
                     >
                       <IconComponent
-                        size={40}
+                        size={32}
                         className={`${medal.color} drop-shadow-md`}
                         strokeWidth={1.5}
                       />
                     </div>
-                    <span className="text-sm font-bold text-gray-700 dark:text-gray-300 max-w-[100px] leading-tight text-center">
+                    <span className="text-xs md:text-sm font-bold text-gray-700 dark:text-gray-300 max-w-[80px] md:max-w-[100px] leading-tight text-center">
                       {medal.name}
                     </span>
                   </div>
@@ -447,19 +460,19 @@ export const ResultsScreen = ({ state, onRestart }) => {
           </div>
 
           {/* Buttons */}
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className="flex flex-wrap gap-3 md:gap-4 justify-center">
             <button
               onClick={onRestart}
-              className="px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
+              className="px-6 md:px-8 py-3 md:py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
             >
-              <RotateCcw size={24} strokeWidth={1.5} />
+              <RotateCcw size={20} strokeWidth={1.5} />
               Refazer Simulação
             </button>
 
             <button
               onClick={generatePDF}
               disabled={isGeneratingPDF}
-              className="px-8 py-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 md:px-8 py-3 md:py-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
             >
               {isGeneratingPDF ? (
                 <>
@@ -468,7 +481,7 @@ export const ResultsScreen = ({ state, onRestart }) => {
                 </>
               ) : (
                 <>
-                  <FileText size={24} strokeWidth={1.5} />
+                  <FileText size={20} strokeWidth={1.5} />
                   Baixar Gabarito
                 </>
               )}
@@ -476,9 +489,9 @@ export const ResultsScreen = ({ state, onRestart }) => {
 
             <button
               onClick={handleShare}
-              className="px-8 py-4 bg-primary-600 hover:bg-primary-500 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+              className="px-6 md:px-8 py-3 md:py-4 bg-primary-600 hover:bg-primary-500 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
             >
-              <Share2 size={24} strokeWidth={1.5} />
+              <Share2 size={20} strokeWidth={1.5} />
               Compartilhar
             </button>
           </div>
