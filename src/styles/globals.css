@@ -323,4 +323,93 @@
       opacity: 0;
     }
   }
+
+  /* ============================================
+   ACESSIBILIDADE - FOCUS E REDUÇÃO DE MOVIMENTO
+   ============================================ */
+
+  /* ===== INDICADOR DE FOCO MELHORADO ===== */
+  *:focus-visible {
+    outline: 3px solid #0ea5e9 !important;
+    outline-offset: 3px !important;
+    border-radius: 4px !important;
+  }
+
+  /* ===== REDUÇÃO DE MOVIMENTO ===== */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    .animate-bounce-slight,
+    .animate-pulse-fast,
+    .animate-slide-up,
+    .animate-shake,
+    .animate-fade-in,
+    .animate-blur-in,
+    .animate-pulse-warning,
+    .animate-ping {
+      animation: none !important;
+    }
+  }
+
+  /* ===== SKIP LINK - PULAR PARA O CONTEÚDO PRINCIPAL ===== */
+  .skip-link {
+    position: absolute;
+    top: -9999px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    background: #0ea5e9;
+    color: white;
+    border-radius: 8px;
+    z-index: 9999;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .skip-link:focus {
+    top: 16px;
+  }
+
+  /* ===== ALVOS DE CLIQUE MAIORES ===== */
+  button,
+  a,
+  [role='button'],
+  [role='checkbox'],
+  [role='radio'] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* ===== CONTRASTE DE CORES ===== */
+  .text-gray-400 {
+    color: #9ca3af !important; /* Contraste melhorado */
+  }
+
+  .dark .text-gray-400 {
+    color: #d1d5db !important;
+  }
+
+  /* ===== TAMANHO DE FONTE RESPONSIVEL ===== */
+  html {
+    font-size: 16px;
+  }
+
+  @media (max-width: 640px) {
+    html {
+      font-size: 15px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
 }
