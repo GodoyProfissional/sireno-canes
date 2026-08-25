@@ -22,7 +22,15 @@ export const TutorialScreen = ({ onStart }) => {
         aria-hidden="true"
       ></div>
 
-      <div className="w-full max-w-3xl glass rounded-3xl shadow-2xl overflow-hidden animate-slide-up border border-white/50 dark:border-gray-700/50 relative z-10">
+      {/* ===== SKIP LINK ===== */}
+      <a href="#tutorial-content" className="skip-link">
+        Pular para o conteúdo do tutorial
+      </a>
+
+      <div
+        id="tutorial-content"
+        className="w-full max-w-3xl glass rounded-3xl shadow-2xl overflow-hidden animate-slide-up border border-white/50 dark:border-gray-700/50 relative z-10"
+      >
         <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-8 text-center text-white">
           <h1 className="text-3xl font-bold flex items-center justify-center gap-3">
             <GraduationCap size={32} className="text-primary-400" aria-hidden="true" />

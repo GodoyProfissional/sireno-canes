@@ -104,8 +104,29 @@ const renderIcon = (iconName, className = 'w-4 h-4') => {
 }
 
 export const Minimap = ({ currentIndex, questions }) => {
+  // ===== CALCULAR PROGRESSO PARA ACESSIBILIDADE =====
+  const totalQuestions = questions.length
+  const currentQuestion = currentIndex + 1
+  const progressPercent = Math.round((currentQuestion / totalQuestions) * 100)
+
   return (
-    <div className="flex items-center gap-1 md:gap-3 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md px-4 py-2 rounded-full shadow-sm text-xs font-medium text-gray-500 dark:text-gray-400 overflow-x-auto max-w-full">
+    <div
+      className="flex items-center gap-1 md:gap-3 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md px-4 py-2 rounded-full shadow-sm text-xs font-medium text-gray-500 dark:text-gray-400 overflow-x-auto max-w-full"
+      role="navigation"
+      aria-label="Mapa de progresso das fases"
+    >
+      {/* ===== PROGRESSO OCULTO PARA SCREEN READER ===== */}
+      <div
+        className="sr-only"
+        role="progressbar"
+        aria-valuenow={currentQuestion}
+        aria-valuemin={1}
+        aria-valuemax={totalQuestions}
+        aria-label={`Progresso: ${currentQuestion} de ${totalQuestions} fases concluídas, ${progressPercent}% completo`}
+      >
+        {`Fase ${currentQuestion} de ${totalQuestions}`}
+      </div>
+
       {questions.map((q, idx) => {
         const isPast = idx < currentIndex
         const isCurrent = idx === currentIndex
@@ -120,13 +141,19 @@ export const Minimap = ({ currentIndex, questions }) => {
           classes += 'bg-gray-200 dark:bg-gray-700 text-gray-500'
         }
 
+        // ===== STATUS PARA ACESSIBILIDADE =====
+        let statusText = ''
+        if (isCurrent) statusText = ' (atual)'
+        else if (isPast) statusText = ' (concluída)'
+        else statusText = ' (pendente)'
+
         return (
           <React.Fragment key={idx}>
             <div
               className={classes}
-              title={q.room}
+              title={`${q.room}${statusText}`}
               role="img"
-              aria-label={`Fase ${idx + 1}: ${q.room}`}
+              aria-label={`Fase ${idx + 1}: ${q.room}${statusText}`}
             >
               {renderIcon(q.roomIcon, 'w-4 h-4')}
             </div>
@@ -134,7 +161,7 @@ export const Minimap = ({ currentIndex, questions }) => {
               <div
                 className={`w-2 h-0.5 md:w-4 shrink-0 ${isPast ? 'bg-success-500' : 'bg-gray-300 dark:bg-gray-600'}`}
                 aria-hidden="true"
-              ></div>
+              />
             )}
           </React.Fragment>
         )

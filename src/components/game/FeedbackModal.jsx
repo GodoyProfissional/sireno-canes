@@ -11,7 +11,6 @@ export const FeedbackModal = ({ isOpen, data, onClose, onNext }) => {
     if (isOpen) {
       previousFocus.current = document.activeElement
       setIsVisible(true)
-      // Foca no modal
       setTimeout(() => {
         if (modalRef.current) {
           modalRef.current.focus()
@@ -20,7 +19,6 @@ export const FeedbackModal = ({ isOpen, data, onClose, onNext }) => {
     } else {
       const timer = setTimeout(() => {
         setIsVisible(false)
-        // Retorna o foco para o elemento anterior
         if (previousFocus.current) {
           previousFocus.current.focus()
         }

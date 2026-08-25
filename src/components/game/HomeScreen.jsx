@@ -1,6 +1,7 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { PlayCircle, RotateCcw, Moon, Sun } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
+import { FontSizeControl } from '../shared/FontSizeControl'
 
 import videoBg from '../../assets/videos/CANES E ELEFANTE.mp4'
 import sirenoHome from '../../assets/imagens/Sireno-Home.png'
@@ -8,6 +9,7 @@ import sirenoHome from '../../assets/imagens/Sireno-Home.png'
 export const HomeScreen = ({ onStart, onContinue, hasProgress }) => {
   const { toggleTheme, isDark } = useTheme()
   const videoRef = useRef(null)
+  const [announcement, setAnnouncement] = useState('')
 
   useEffect(() => {
     const video = videoRef.current
@@ -25,6 +27,9 @@ export const HomeScreen = ({ onStart, onContinue, hasProgress }) => {
     video.addEventListener('ended', handleEnded)
     playVideo()
 
+    // Anunciar tela carregada
+    setAnnouncement('Tela inicial do treinamento de evacuação carregada')
+
     return () => {
       video.removeEventListener('ended', handleEnded)
       video.pause()
@@ -35,17 +40,23 @@ export const HomeScreen = ({ onStart, onContinue, hasProgress }) => {
     <div
       className="relative w-full min-h-screen overflow-hidden bg-black"
       role="main"
-      aria-label="Tela inicial"
+      aria-label="Tela inicial do treinamento"
     >
       {/* ===== SKIP LINK ===== */}
       <a href="#main-content" className="skip-link">
         Pular para o conteúdo principal
       </a>
 
+      {/* ===== ANÚNCIO DE TELA ===== */}
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </div>
+
       {/* ===== VÍDEO DE FUNDO ===== */}
       <video
         ref={videoRef}
         autoPlay
+        loop
         muted
         playsInline
         aria-hidden="true"
@@ -62,14 +73,17 @@ export const HomeScreen = ({ onStart, onContinue, hasProgress }) => {
         aria-hidden="true"
       ></div>
 
-      {/* ===== THEME TOGGLE ===== */}
-      <button
-        onClick={toggleTheme}
-        aria-label={`Alternar para tema ${isDark ? 'claro' : 'escuro'}`}
-        className="absolute top-4 right-4 z-20 p-2 rounded-full glass shadow-md text-gray-800 dark:text-gray-200 hover:scale-110 transition-transform"
-      >
-        {isDark ? <Sun size={24} aria-hidden="true" /> : <Moon size={24} aria-hidden="true" />}
-      </button>
+      {/* ===== CONTROLES ===== */}
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+        <FontSizeControl />
+        <button
+          onClick={toggleTheme}
+          aria-label={`Alternar para tema ${isDark ? 'claro' : 'escuro'}`}
+          className="p-2 rounded-full glass shadow-md text-gray-800 dark:text-gray-200 hover:scale-110 transition-transform"
+        >
+          {isDark ? <Sun size={24} aria-hidden="true" /> : <Moon size={24} aria-hidden="true" />}
+        </button>
+      </div>
 
       {/* ===== CONTEÚDO PRINCIPAL ===== */}
       <div

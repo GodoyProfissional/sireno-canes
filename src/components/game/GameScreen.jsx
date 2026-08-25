@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { QuestionRenderer } from './QuestionRenderer'
 import { HUD } from '../shared/HUD'
 import { Minimap } from '../shared/Minimap'
@@ -7,6 +7,7 @@ import { GameOverModal } from './GameOverModal'
 import { questionsDB } from '../../data/questions'
 import { useTheme } from '../../hooks/useTheme'
 import { Moon, Sun } from 'lucide-react'
+import { FontSizeControl } from '../shared/FontSizeControl'
 
 export const GameScreen = ({ state, onFinish }) => {
   const [showFeedback, setShowFeedback] = useState(false)
@@ -14,22 +15,34 @@ export const GameScreen = ({ state, onFinish }) => {
   const [showGameOver, setShowGameOver] = useState(false)
   const [hintCount, setHintCount] = useState(0)
   const [showHintButton, setShowHintButton] = useState(true)
+  const [screenAnnouncement, setScreenAnnouncement] = useState('')
+  const [progressAnnouncement, setProgressAnnouncement] = useState('')
   const { toggleTheme, isDark } = useTheme()
 
   const currentQuestion = state.getCurrentQuestion()
   const isFinished = state.isGameFinished
 
-  // Verificar se a pergunta atual tem dicas
+  // ===== ANÚNCIO DE MUDANÇA DE PERGUNTA =====
   useEffect(() => {
     if (currentQuestion) {
-      // Perguntas que NÃO têm dicas
+      const total = questionsDB.length
+      const current = state.state.questionIndex + 1
+      setScreenAnnouncement(
+        `Pergunta ${current} de ${total}: ${currentQuestion.situation}. ${currentQuestion.question}`,
+      )
+      setProgressAnnouncement(`Progresso: ${current} de ${total} perguntas concluídas`)
+    }
+  }, [currentQuestion, state.state.questionIndex])
+
+  // ===== VERIFICAR SE A PERGUNTA TEM DICAS =====
+  useEffect(() => {
+    if (currentQuestion) {
       const noHintTypes = ['image-hotspot', 'route-choice', 'spot-the-error']
-      // Perguntas que TÊM dicas (todos os outros tipos)
       setShowHintButton(!noHintTypes.includes(currentQuestion.type))
     }
   }, [currentQuestion])
 
-  // Resetar dicas quando mudar a pergunta
+  // ===== RESETAR DICAS =====
   useEffect(() => {
     setHintCount(0)
     const container = document.getElementById('question-container')
@@ -156,7 +169,6 @@ export const GameScreen = ({ state, onFinish }) => {
 
   // ===== SISTEMA DE DICAS =====
   const handleUseHint = () => {
-    // Se a pergunta não tem dicas, não faz nada
     if (!showHintButton) {
       return
     }
@@ -170,7 +182,6 @@ export const GameScreen = ({ state, onFinish }) => {
     const container = document.getElementById('question-container')
     if (!container) return
 
-    // Define máximo de dicas por tipo
     let maxHints = 0
     switch (q.type) {
       case 'multiple-choice':
@@ -186,41 +197,33 @@ export const GameScreen = ({ state, onFinish }) => {
         maxHints = 3
         break
       case 'image-hotspot':
-        maxHints = 0 // SEM DICAS
+        maxHints = 0
         break
       case 'route-choice':
-        maxHints = 0 // SEM DICAS
+        maxHints = 0
         break
       case 'spot-the-error':
-        maxHints = 0 // SEM DICAS
+        maxHints = 0
         break
       default:
         maxHints = 1
     }
 
-    // Se não tem dicas permitidas
-    if (maxHints === 0) {
-      return
-    }
+    if (maxHints === 0) return
 
-    // Se já usou todas as dicas permitidas
     if (hintCount >= maxHints) {
       showHintBanner(container, 'Não é possível mais usar dicas nesta pergunta!', true)
       return
     }
 
-    // CONSUME A DICA
     state.state.hints--
     state.state.xp = Math.max(0, state.state.xp - 50)
     state.updateHUD()
     setHintCount((prev) => prev + 1)
 
     let hintMsg = ''
-
-    // ===== LIMPA DESTAQUES ANTERIORES =====
     clearHighlights(container)
 
-    // ===== LÓGICA DE DICA POR TIPO =====
     switch (q.type) {
       case 'multiple-choice': {
         const btns = container.querySelectorAll('button[data-opt]')
@@ -510,8 +513,6 @@ export const GameScreen = ({ state, onFinish }) => {
         break
       }
 
-      // SPOT-THE-ERROR REMOVIDO - SEM DICAS
-
       default: {
         showHintBanner(container, 'Tente novamente com mais atenção!')
         return
@@ -529,22 +530,44 @@ export const GameScreen = ({ state, onFinish }) => {
 
   return (
     <div className="w-full h-full flex flex-col p-2 sm:p-4 relative min-h-screen">
-      <button
-        onClick={toggleTheme}
-        aria-label="Alternar tema"
-        className="absolute top-2 right-2 z-50 p-2 rounded-full glass shadow-md text-gray-800 dark:text-gray-200 hover:scale-110 transition-transform"
+      {/* ===== ANÚNCIO DE PERGUNTA ===== */}
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {screenAnnouncement}
+      </div>
+      <div
+        className="sr-only"
+        role="progressbar"
+        aria-valuenow={state.state.questionIndex + 1}
+        aria-valuemin={1}
+        aria-valuemax={questionsDB.length}
+        aria-label="Progresso do jogo"
       >
-        {isDark ? <Sun size={20} /> : <Moon size={20} />}
-      </button>
+        {progressAnnouncement}
+      </div>
 
+      {/* ===== CONTROLES ===== */}
+      <div className="absolute top-2 right-2 z-50 flex items-center gap-2">
+        <FontSizeControl />
+        <button
+          onClick={toggleTheme}
+          aria-label={`Alternar para tema ${isDark ? 'claro' : 'escuro'}`}
+          className="p-2 rounded-full glass shadow-md text-gray-800 dark:text-gray-200 hover:scale-110 transition-transform"
+        >
+          {isDark ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
+      </div>
+
+      {/* ===== BACKGROUND ===== */}
       {currentQuestion.bgImage && (
         <div className="env-bg" style={{ backgroundImage: `url('${currentQuestion.bgImage}')` }} />
       )}
 
-      <div className="flex justify-center mb-2 mt-10">
+      {/* ===== MINIMAP ===== */}
+      <div className="flex justify-center mb-2 mt-12">
         <Minimap currentIndex={state.state.questionIndex} questions={questionsDB} />
       </div>
 
+      {/* ===== HUD ===== */}
       <HUD
         lives={state.state.lives}
         xp={state.state.xp}
@@ -559,6 +582,7 @@ export const GameScreen = ({ state, onFinish }) => {
         showHintButton={showHintButton}
       />
 
+      {/* ===== QUESTÃO ===== */}
       <div
         id="question-container"
         className="flex-1 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl p-4 md:p-8 flex flex-col border border-white/20 dark:border-gray-700/50 relative overflow-hidden transition-all duration-500 min-h-[400px]"
@@ -571,13 +595,12 @@ export const GameScreen = ({ state, onFinish }) => {
         />
       </div>
 
+      {/* ===== MODAIS ===== */}
       <FeedbackModal
         isOpen={showFeedback}
         data={feedbackData}
         onClose={handleFeedbackClose}
-        onNext={() => {
-          setShowFeedback(false)
-        }}
+        onNext={() => setShowFeedback(false)}
       />
 
       <GameOverModal isOpen={showGameOver} onContinue={handleGameOverContinue} />

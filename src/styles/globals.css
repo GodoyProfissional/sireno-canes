@@ -216,6 +216,67 @@
   .dark .sireno-balloon .avatar {
     border-color: #3b82f6;
   }
+
+  /* ============================================
+     ACESSIBILIDADE - NOVAS CLASSES
+     ============================================ */
+
+  /* ===== SKIP LINK - PULAR PARA O CONTEÚDO PRINCIPAL ===== */
+  .skip-link {
+    position: absolute;
+    top: -9999px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    background: #0ea5e9;
+    color: white;
+    border-radius: 8px;
+    z-index: 9999;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .skip-link:focus {
+    top: 16px;
+  }
+
+  /* ===== ALVOS DE CLIQUE MAIORES ===== */
+  button,
+  a,
+  [role='button'],
+  [role='checkbox'],
+  [role='radio'] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* ===== CORES AMIGÁVEIS PARA DALTÔNICOS ===== */
+  .correct-answer {
+    background-color: #0066cc !important;
+  }
+  .correct-answer::after {
+    content: ' ✓';
+  }
+
+  .wrong-answer {
+    background-color: #cc3300 !important;
+  }
+  .wrong-answer::after {
+    content: ' ✗';
+  }
+
+  /* ===== CLASSE SR-ONLY (Screen Reader Only) ===== */
+  .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
 }
 
 @layer utilities {
@@ -325,8 +386,8 @@
   }
 
   /* ============================================
-   ACESSIBILIDADE - FOCUS E REDUÇÃO DE MOVIMENTO
-   ============================================ */
+     ACESSIBILIDADE - FOCUS E REDUÇÃO DE MOVIMENTO
+     ============================================ */
 
   /* ===== INDICADOR DE FOCO MELHORADO ===== */
   *:focus-visible {
@@ -358,38 +419,45 @@
     }
   }
 
-  /* ===== SKIP LINK - PULAR PARA O CONTEÚDO PRINCIPAL ===== */
-  .skip-link {
-    position: absolute;
-    top: -9999px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 24px;
-    background: #0ea5e9;
-    color: white;
-    border-radius: 8px;
-    z-index: 9999;
-    font-weight: bold;
-    text-decoration: none;
-  }
+  /* ===== MODO DE ALTO CONTRASTE ===== */
+  @media (prefers-contrast: high) {
+    :root {
+      --text-color: #000000;
+      --bg-color: #ffffff;
+      --border-color: #000000;
+    }
 
-  .skip-link:focus {
-    top: 16px;
-  }
+    .glass {
+      background: #ffffff !important;
+      backdrop-filter: none !important;
+      border: 2px solid #000000 !important;
+    }
 
-  /* ===== ALVOS DE CLIQUE MAIORES ===== */
-  button,
-  a,
-  [role='button'],
-  [role='checkbox'],
-  [role='radio'] {
-    min-height: 44px;
-    min-width: 44px;
+    .dark .glass {
+      background: #000000 !important;
+      border: 2px solid #ffffff !important;
+    }
+
+    button {
+      border: 2px solid currentColor !important;
+    }
+
+    .bg-gradient-to-r {
+      background: #000000 !important;
+    }
+
+    .text-white {
+      color: #000000 !important;
+    }
+
+    .dark .text-white {
+      color: #ffffff !important;
+    }
   }
 
   /* ===== CONTRASTE DE CORES ===== */
   .text-gray-400 {
-    color: #9ca3af !important; /* Contraste melhorado */
+    color: #9ca3af !important;
   }
 
   .dark .text-gray-400 {
