@@ -33,8 +33,8 @@ export const TutorialScreen = ({ onStart }) => {
 
         <div className="p-8 space-y-6 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm">
           <p className="text-center text-gray-700 dark:text-gray-300 font-medium text-lg">
-            Você deverá tomar decisões durante uma situação simulada de emergência. Observe bem as
-            perguntas e avance até a saída segura.
+            Responda às perguntas com base no vídeo de segurança que você assistiu e escolha as
+            opções mais seguras.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
