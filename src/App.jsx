@@ -12,7 +12,7 @@ function App() {
   const gameState = useGameState()
 
   const handleRestart = () => {
-    gameState.resetGame() // Reset completo
+    gameState.resetGame()
     setCurrentScreen('home')
   }
 

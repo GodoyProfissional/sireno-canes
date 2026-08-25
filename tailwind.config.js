@@ -8,6 +8,7 @@ export default {
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',
+          400: '#38bdf8',
           500: '#0ea5e9',
           600: '#0284c7',
           700: '#0369a1',
@@ -18,6 +19,10 @@ export default {
         warning: { 500: '#f59e0b', 600: '#d97706' },
       },
       fontFamily: { sans: ['Inter', 'sans-serif'] },
+      zIndex: {
+        1: '1',
+        2: '2',
+      },
       animation: {
         'bounce-slight': 'bounceSlight 1s infinite',
         'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -26,6 +31,7 @@ export default {
         'fade-in': 'fadeIn 0.5s ease-out forwards',
         'blur-in': 'blurIn 0.6s ease-out forwards',
         'pulse-warning': 'pulseWarning 1.5s ease-in-out infinite',
+        ping: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite',
       },
       keyframes: {
         bounceSlight: {
@@ -44,22 +50,15 @@ export default {
         },
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
         blurIn: {
-          '0%': {
-            filter: 'blur(10px)',
-            opacity: '0',
-            transform: 'scale(1.05)',
-          },
+          '0%': { filter: 'blur(10px)', opacity: '0', transform: 'scale(1.05)' },
           '100%': { filter: 'blur(0)', opacity: '1', transform: 'scale(1)' },
         },
         pulseWarning: {
-          '0%, 100%': {
-            boxShadow: '0 0 0 0 rgba(245, 158, 11, 0.4)',
-            borderColor: '#f59e0b',
-          },
-          '50%': {
-            boxShadow: '0 0 0 8px rgba(245, 158, 11, 0)',
-            borderColor: '#fbbf24',
-          },
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(245, 158, 11, 0.4)', borderColor: '#f59e0b' },
+          '50%': { boxShadow: '0 0 0 8px rgba(245, 158, 11, 0)', borderColor: '#fbbf24' },
+        },
+        ping: {
+          '75%, 100%': { transform: 'scale(2)', opacity: '0' },
         },
       },
     },

@@ -1,10 +1,29 @@
 import React from 'react'
 import { GraduationCap, Heart, TrendingUp, Rocket } from 'lucide-react'
 
+// Importe a imagem
+import fundoTutorial from '../../assets/imagens/Senac-fogo.png'
+
 export const TutorialScreen = ({ onStart }) => {
   return (
-    <div className="flex items-center justify-center min-h-screen p-4">
-      <div className="w-full max-w-3xl glass rounded-3xl shadow-2xl overflow-hidden animate-slide-up border border-white/50 dark:border-gray-700/50">
+    <div className="flex items-center justify-center min-h-screen p-4 relative overflow-hidden">
+      {/* ===== IMAGEM DE FUNDO ===== */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `url(${fundoTutorial})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+
+      {/* Overlay escuro para legibilidade */}
+      <div className="absolute inset-0 bg-black/60 z-1"></div>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-1"></div>
+
+      {/* Conteúdo principal */}
+      <div className="w-full max-w-3xl glass rounded-3xl shadow-2xl overflow-hidden animate-slide-up border border-white/50 dark:border-gray-700/50 relative z-10">
         <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-8 text-center text-white">
           <h2 className="text-3xl font-bold flex items-center justify-center gap-3">
             <GraduationCap size={32} className="text-primary-400" />
@@ -12,14 +31,14 @@ export const TutorialScreen = ({ onStart }) => {
           </h2>
         </div>
 
-        <div className="p-8 space-y-6">
+        <div className="p-8 space-y-6 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm">
           <p className="text-center text-gray-700 dark:text-gray-300 font-medium text-lg">
             Você deverá tomar decisões durante uma situação simulada de emergência. Observe bem as
             perguntas e avance até a saída segura.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+            <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/80 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700 backdrop-blur-sm">
               <Heart size={32} className="text-danger-500" fill="#ef4444" />
               <div>
                 <h3 className="font-bold text-gray-900 dark:text-white">Vidas e Tentativas</h3>
@@ -30,7 +49,7 @@ export const TutorialScreen = ({ onStart }) => {
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+            <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/80 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700 backdrop-blur-sm">
               <TrendingUp size={32} className="text-success-500" />
               <div>
                 <h3 className="font-bold text-gray-900 dark:text-white">Pontuação (XP)</h3>
