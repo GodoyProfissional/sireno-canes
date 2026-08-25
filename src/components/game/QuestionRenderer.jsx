@@ -63,25 +63,20 @@ const iconMap = {
   'ph-hand-heart': 'HeartHandshake',
   'ph-speaker-slash': 'VolumeX',
   'ph-shield-plus': 'ShieldPlus',
-  // NOTA: Removida a duplicata 'ph-users-three'
 }
 
 // Função para renderizar ícones Lucide
 const renderIcon = (iconName, className = 'w-5 h-5', size = 20) => {
   if (!iconName) return null
 
-  // Remove 'ph-' do nome do ícone e mapeia
   const cleanName = iconName.replace('ph-', '')
   const lucideName = iconMap[iconName] || cleanName
-
-  // Tenta encontrar o ícone no Lucide
   const IconComponent = LucideIcons[lucideName] || LucideIcons[cleanName]
 
   if (IconComponent) {
     return <IconComponent className={className} size={size} strokeWidth={1.5} />
   }
 
-  // Fallback: tenta com o nome original capitalizado
   const fallbackName = cleanName
     .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))

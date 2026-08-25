@@ -27,7 +27,8 @@ export const FeedbackModal = ({ isOpen, data, onClose, onNext }) => {
   const renderExplanation = () => {
     let html = isCorrect ? question.explanationCorrect : question.explanationWrong
 
-    if (html && html.includes('sireno-balloon')) {
+    // Se tiver HTML com balão do Sireno, renderiza como HTML
+    if (html && (html.includes('sireno-balloon') || html.includes('Sireno diz'))) {
       return <div dangerouslySetInnerHTML={{ __html: html }} />
     }
 

@@ -378,12 +378,6 @@ export const DragMatch = ({ question, onAnswer }) => {
           ))}
         </div>
       </div>
-
-      {isComplete && (
-        <div className="mt-4 text-center text-success-500 font-bold animate-fade-in">
-          ✅ Todas as conexões foram feitas corretamente!
-        </div>
-      )}
     </div>
   )
 }

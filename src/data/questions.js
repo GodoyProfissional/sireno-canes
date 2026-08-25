@@ -23,12 +23,12 @@ const IMG_SAIDA = 'https://placehold.co/800x400/1e293b/475569?text=Hall+de+Saida
 const IMG_PONTO = 'https://placehold.co/800x400/2f855a/48bb78?text=Ponto+de+Encontro'
 const IMG_7ERROS = 'https://placehold.co/800x450/4b5563/1f2937?text=Identifique+os+Erros+na+Imagem'
 
-// Template do Balão do Sireno
+// Template do Balão do Sireno - TAMANHO GRANDE E UNIFORME
 export const getSirenoBalloon = (text, imageUrl = IMAGES.SIRENO) => `
   <div class="flex items-start gap-4 bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl border border-blue-200 dark:border-blue-800 shadow-sm mt-4">
     <img 
       src="${imageUrl}" 
-      class="w-16 h-16 rounded-full shadow-md border-2 border-white flex-shrink-0 object-cover" 
+      class="w-28 h-28 md:w-36 md:h-36 rounded-full shadow-md border-2 border-white flex-shrink-0 object-cover" 
       alt="Sireno - personagem que dá orientações de segurança"
       role="img"
     >
@@ -163,7 +163,7 @@ export const questionsDB = [
       { text: 'Uso em caso de incêndio', icon: 'ph-fire', isCorrect: true },
       {
         text: 'Não respeitar preferencial',
-        icon: 'ph-wheelchair',
+        icon: 'person-standing',
         isCorrect: true,
       },
       {
@@ -173,10 +173,10 @@ export const questionsDB = [
       },
       {
         text: 'Aguardar com calma',
-        icon: 'ph-hands-clapping',
+        icon: 'octagon-pause',
         isCorrect: false,
       },
-      { text: 'Usar as escadas', icon: 'ph-stairs', isCorrect: false },
+      { text: 'Usar as escadas', icon: 'list-sort-ascending', isCorrect: false },
       { text: 'Seguir a sinalização', icon: 'ph-signpost', isCorrect: false },
       { text: 'Ajudar colegas', icon: 'ph-handshake', isCorrect: false },
       { text: 'Avisar a brigada', icon: 'ph-shield-plus', isCorrect: false },
@@ -203,7 +203,7 @@ export const questionsDB = [
     ],
     distractorsRight: ['Vice-representante', 'Coordenador'],
     correctAnswer: 'correct',
-    explanationCorrect: `Correto! Em situações habituais, o representante puxa, o docente cerra e o anjo protege.<br>
+    explanationCorrect: `Correto! Em situações habituais, o representante puxa-fila, o docente cerra-fila e o anjo da Guarda ajuda alunos com singularidades.<br>
       ${getSirenoBalloon(
         'Caso os docentes sejam brigadistas, o cerra-fila será o vice-representante.<br><br><b>Atenção:</b> Após a evacuação de todos, a sala deverá ser lacrada.',
         IMAGES.SIRENO_JOINHA,
@@ -226,7 +226,7 @@ export const questionsDB = [
       { text: 'Empurrar', icon: 'ph-hand-palm', isCorrect: true },
       {
         text: 'Andar de skate',
-        icon: 'ph-person-simple-snowboard',
+        icon: 'motorbike',
         isCorrect: true,
       },
       {
@@ -236,12 +236,12 @@ export const questionsDB = [
       },
       { text: 'Usar o corrimão', icon: 'ph-hand', isCorrect: false },
       { text: 'Descer em fila indiana', icon: 'ph-users', isCorrect: false },
-      { text: 'Ajudar pessoas', icon: 'ph-wheelchair', isCorrect: false },
-      { text: 'Manter a calma', icon: 'ph-smiley', isCorrect: false },
+      { text: 'Ajudar pessoas', icon: 'heart-handshake', isCorrect: false },
+      { text: 'Manter a calma', icon: 'face-slightly-smiling', isCorrect: false },
       { text: 'Prestar atenção ao piso', icon: 'ph-eye', isCorrect: false },
     ],
     correctAnswer: 'correct',
-    explanationCorrect: `Ótimo! Essas atitudes colocam todos em risco de queda. 
+    explanationCorrect: `Ótimo! Essas atitudes colocam todos em risco. 
       ${getSirenoBalloon(
         'Respeite a sinalização de limpeza para evitar acidentes.',
         IMAGES.SIRENO_TCHAU,
@@ -265,7 +265,7 @@ export const questionsDB = [
       { text: 'Correr', icon: 'ph-sneaker', isCorrect: true },
       {
         text: 'Andar lentamente',
-        icon: 'ph-person-simple-walk',
+        icon: 'timer',
         isCorrect: true,
       },
       { text: 'Entrar em pânico', icon: 'ph-smiley-sad', isCorrect: true },
@@ -274,7 +274,7 @@ export const questionsDB = [
       { text: 'Seguir a Brigada', icon: 'ph-check-circle', isCorrect: false },
       {
         text: 'Caminhar rápido',
-        icon: 'ph-person-simple-run',
+        icon: 'timer-reset',
         isCorrect: false,
       },
       { text: 'Ajudar quem precisa', icon: 'ph-hand-heart', isCorrect: false },

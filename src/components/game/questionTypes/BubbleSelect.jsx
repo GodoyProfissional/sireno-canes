@@ -29,6 +29,9 @@ const bubbleIconMap = {
   'ph-device-mobile': 'Smartphone',
   'ph-elevator': 'Elevator',
   'ph-warning': 'TriangleAlert',
+  'person-standing': 'PersonStanding',
+  'octagon-pause': 'OctagonPause',
+  'list-sort-ascending': 'List',
 }
 
 const renderBubbleIcon = (iconName, className = 'w-5 h-5 md:w-6 md:h-6', size = 20) => {
@@ -41,7 +44,6 @@ const renderBubbleIcon = (iconName, className = 'w-5 h-5 md:w-6 md:h-6', size = 
     return <IconComponent className={`${className} pointer-events-none`} size={size} />
   }
 
-  // Fallback: tenta capitalizar
   const fallbackName = iconName
     .replace('ph-', '')
     .split('-')
@@ -102,11 +104,11 @@ export const BubbleSelect = ({ question, onAnswer }) => {
 
   return (
     <div className="mt-4 flex flex-col w-full">
-      <div className="relative w-full" style={{ minHeight: '420px' }}>
-        {/* Imagem Central */}
+      <div className="relative w-full" style={{ minHeight: '450px' }}>
+        {/* Imagem Central - MAIOR */}
         {question.centerImage && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white dark:border-gray-700 shadow-[0_0_20px_rgba(0,0,0,0.3)] overflow-hidden bg-white group-hover:scale-105 transition-transform">
+            <div className="w-40 h-40 md:w-56 md:h-56 rounded-full border-4 border-white dark:border-gray-700 shadow-[0_0_35px_rgba(0,0,0,0.4)] overflow-hidden bg-white transition-transform duration-300 hover:scale-105">
               <img src={question.centerImage} className="w-full h-full object-cover" alt="Centro" />
             </div>
           </div>
@@ -117,8 +119,8 @@ export const BubbleSelect = ({ question, onAnswer }) => {
           {question.bubbles.map((b, i) => {
             const total = question.bubbles.length
             const angle = (i / total) * 2 * Math.PI - Math.PI / 2
-            const radiusX = isMobile ? 38 : 32
-            const radiusY = 40
+            const radiusX = isMobile ? 45 : 40
+            const radiusY = 45
             const left = 50 + Math.cos(angle) * radiusX
             const top = 50 + Math.sin(angle) * radiusY
             const isSelected = selected.has(i)
