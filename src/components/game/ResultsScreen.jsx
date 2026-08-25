@@ -17,7 +17,7 @@ import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 
 // ==== MESMA ABORDAGEM DO questions.js ====
-const SirenoItens = '/imagens/Sireno-itensbrigada.png';
+const SirenoItens = '/imagens/Sireno-itensbrigada.png'
 
 export const ResultsScreen = ({ state, onRestart }) => {
   const { state: gameState, LEVELS_CONFIG, getLevel } = state
