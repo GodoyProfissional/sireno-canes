@@ -6,7 +6,6 @@ export const Sequence = ({ question, onAnswer }) => {
   const [isComplete, setIsComplete] = useState(false)
 
   useEffect(() => {
-    // Embaralha os itens do pool
     const shuffled = [...question.steps].sort(() => Math.random() - 0.5)
     setPool(shuffled)
     setSelected([])
@@ -14,13 +13,11 @@ export const Sequence = ({ question, onAnswer }) => {
   }, [question])
 
   const handleSelect = (step) => {
-    // Remove do pool e adiciona ao selected
     setPool((prev) => prev.filter((s) => s !== step))
     setSelected((prev) => [...prev, step])
   }
 
   const handleRemove = (step) => {
-    // Remove do selected e volta para o pool
     setSelected((prev) => prev.filter((s) => s !== step))
     setPool((prev) => [...prev, step])
   }
@@ -49,15 +46,13 @@ export const Sequence = ({ question, onAnswer }) => {
     onAnswer(isCorrect)
   }
 
-  // Função para verificar se um item está na posição correta
   const isItemInCorrectPosition = (step, index) => {
-    // Verifica se o item está na posição correta na ordem
     return question.steps[index] === step
   }
 
   return (
     <div className="mt-4 flex flex-col gap-4">
-      {/* Pool de itens (não selecionados) */}
+      {/* ===== POOL (ITENS NÃO SELECIONADOS) ===== */}
       <div
         id="seq-pool"
         className="flex flex-wrap gap-2 p-4 bg-gray-100 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[100px]"
@@ -66,7 +61,7 @@ export const Sequence = ({ question, onAnswer }) => {
           <button
             key={step}
             onClick={() => handleSelect(step)}
-            className="seq-item px-4 py-2 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm font-medium hover:border-primary-500 text-gray-800 dark:text-white text-left text-sm md:text-base transition-all"
+            className="seq-item px-4 py-2 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm font-medium hover:border-primary-500 dark:hover:border-primary-400 text-gray-800 dark:text-white text-left text-sm md:text-base transition-all"
             data-val={step}
           >
             {step}
@@ -74,13 +69,13 @@ export const Sequence = ({ question, onAnswer }) => {
         ))}
       </div>
 
-      {/* Setinha */}
-      <div className="text-center font-bold text-gray-500 uppercase tracking-widest text-xs">
+      {/* ===== SETINHA ===== */}
+      <div className="text-center font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-xs">
         <i className="ph ph-arrow-down" aria-hidden="true"></i> Ordem Correta{' '}
         <i className="ph ph-arrow-down" aria-hidden="true"></i>
       </div>
 
-      {/* Ordem selecionada */}
+      {/* ===== ORDEM SELECIONADA ===== */}
       <div
         id="seq-target"
         className="flex flex-col gap-2 p-4 bg-primary-50 dark:bg-primary-900/20 rounded-xl border-2 border-dashed border-primary-300 dark:border-primary-700 min-h-[150px]"
@@ -99,25 +94,27 @@ export const Sequence = ({ question, onAnswer }) => {
                 }`}
               data-val={step}
             >
-              <span>
+              <span className="text-gray-900 dark:text-white">
                 {index + 1}. {step}
               </span>
-              <span className="text-xs">{isCorrect ? '✅' : '❌'}</span>
+              <span className="text-xs" aria-hidden="true">
+                {isCorrect ? '✅' : '❌'}
+              </span>
             </button>
           )
         })}
         {selected.length === 0 && (
-          <div className="text-gray-400 text-sm text-center py-4">
+          <div className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
             Clique nos itens acima para montar a ordem correta
           </div>
         )}
       </div>
 
-      {/* Botões */}
+      {/* ===== BOTÕES ===== */}
       <div className="flex justify-between items-center mt-2">
         <button
           onClick={handleReset}
-          className="px-4 py-2 text-gray-500 hover:text-danger-500 font-bold transition-colors"
+          className="px-4 py-2 text-gray-500 dark:text-gray-400 hover:text-danger-500 dark:hover:text-danger-400 font-bold transition-colors"
         >
           <i className="ph ph-arrow-counter-clockwise" aria-hidden="true"></i> Limpar
         </button>
