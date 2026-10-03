@@ -37,7 +37,7 @@ export const GameScreen = ({ state, onFinish }) => {
   // ===== VERIFICAR SE A PERGUNTA TEM DICAS =====
   useEffect(() => {
     if (currentQuestion) {
-      const noHintTypes = ['image-hotspot', 'route-choice', 'spot-the-error']
+      const noHintTypes = ['image-hotspot', 'route-choice', 'spot-the-error', 'multi-image-hotspot']
       setShowHintButton(!noHintTypes.includes(currentQuestion.type))
     }
   }, [currentQuestion])
@@ -199,6 +199,9 @@ export const GameScreen = ({ state, onFinish }) => {
       case 'image-hotspot':
         maxHints = 0
         break
+      case 'multi-image-hotspot':
+        maxHints = 0
+        break
       case 'route-choice':
         maxHints = 0
         break
@@ -208,7 +211,6 @@ export const GameScreen = ({ state, onFinish }) => {
       default:
         maxHints = 1
     }
-
     if (maxHints === 0) return
 
     if (hintCount >= maxHints) {

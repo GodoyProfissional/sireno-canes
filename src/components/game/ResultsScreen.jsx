@@ -16,7 +16,7 @@ import confetti from 'canvas-confetti'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 
-const SirenoItens = '/imagens/Sireno-itensbrigada.png'
+const SirenoItens = '/imagens/sirenofinalapontando1.png'
 const CanesFundo = '/imagens/Canes Pose 05.png'
 
 export const ResultsScreen = ({ state, onRestart }) => {
@@ -151,30 +151,30 @@ export const ResultsScreen = ({ state, onRestart }) => {
     try {
       const { questionsDB } = await import('../../data/questions')
 
+      // Container principal com largura fixa para evitar cortes
       const container = document.createElement('div')
       container.style.cssText = `
+        width: 794px;
         padding: 40px;
         font-family: Arial, sans-serif;
-        max-width: 800px;
-        margin: 0 auto;
         background: white;
         color: #1a1a2e;
+        box-sizing: border-box;
       `
 
       container.innerHTML = `
         <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #0ea5e9; padding-bottom: 20px;">
-          <h1 style="color: #0ea5e9; font-size: 28px; margin: 0;">📋 Gabarito - Missão de Evacuação</h1>
-          <h2 style="color: #1a1a2e; font-size: 18px; margin: 5px 0; font-weight: normal;">Escape da Unidade - Respostas Corretas</h2>
-          <div style="font-size: 14px; color: #64748b; margin-top: 5px;">
+          <h1 style="color: #0ea5e9; font-size: 26px; margin: 0;">📋 Gabarito - Missão de Evacuação</h1>
+          <h2 style="color: #1a1a2e; font-size: 16px; margin: 8px 0 0 0; font-weight: normal;">Escape da Unidade - Respostas Corretas</h2>
+          <div style="font-size: 13px; color: #64748b; margin-top: 8px;">
             Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}
           </div>
         </div>
         
         <div style="margin-bottom: 30px;">
-          <h3 style="color: #1a1a2e; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; font-size: 18px;">
+          <h3 style="color: #1a1a2e; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; font-size: 17px; margin: 0 0 15px 0;">
             📝 Lista de Respostas Corretas
           </h3>
-          <div style="margin-top: 15px;">
       `
 
       questionsDB.forEach((q, index) => {
@@ -182,73 +182,98 @@ export const ResultsScreen = ({ state, onRestart }) => {
         let detalhe = ''
 
         switch (q.type) {
-          case 'multiple-choice':
+          case 'multiple-choice': {
             const correctOption = q.options.find((opt) => opt.id === q.correctAnswer)
             resposta = correctOption ? correctOption.text : q.correctAnswer
             detalhe = `Alternativa ${q.correctAnswer.toUpperCase()}`
             break
-          case 'drag-match':
+          }
+          case 'drag-match': {
             resposta = q.pairs.map((p) => `<strong>${p.left}</strong> → ${p.right}`).join('<br>')
             detalhe = 'Conecte os pares corretamente'
             break
-          case 'sequence':
-            resposta = q.steps.map((s, i) => `${i + 1}. ${s}`).join('<br>')
+          }
+          case 'sequence': {
+            resposta = q.steps.map((s, i) => `<strong>${i + 1}.</strong> ${s}`).join('<br>')
             detalhe = 'Ordem correta dos procedimentos'
             break
-          case 'bubble-select':
+          }
+          case 'bubble-select': {
             const correctBubbles = q.bubbles.filter((b) => b.isCorrect).map((b) => b.text)
-            resposta = correctBubbles.join('<br>')
-            detalhe = 'Selecione as atitudes corretas'
+            const wrongBubbles = q.bubbles.filter((b) => !b.isCorrect).map((b) => b.text)
+            resposta = `<strong style="color: #16a34a;">✅ Selecionar:</strong><br>• ${correctBubbles.join('<br>• ')}`
+            if (wrongBubbles.length > 0) {
+              resposta += `<br><br><strong style="color: #dc2626;">❌ NÃO selecionar:</strong><br>• ${wrongBubbles.join('<br>• ')}`
+            }
+            detalhe = 'Selecione SOMENTE as atitudes INCORRETAS'
             break
-          case 'image-hotspot':
+          }
+          case 'image-hotspot': {
             resposta = 'Clique na região do Ponto de Encontro Isolado'
             detalhe = 'Localização do ponto de encontro'
             break
-          case 'route-choice':
+          }
+          case 'multi-image-hotspot': {
+            resposta = q.images
+              .map(
+                (img, i) => `<strong>${i + 1}. ${img.label}:</strong> Clique no ponto de encontro`,
+              )
+              .join('<br>')
+            detalhe = 'Clique no ponto de encontro em AMBAS as imagens'
+            break
+          }
+          case 'route-choice': {
             const correctRoute = q.routes.find((r) => r.isCorrect)
-            resposta = correctRoute ? correctRoute.title : 'Caminho Sinalizado'
+            resposta = correctRoute
+              ? `<strong>${correctRoute.title}</strong><br>${correctRoute.desc}`
+              : 'Caminho Sinalizado'
             detalhe = 'Rota de fuga correta'
             break
-          case 'spot-the-error':
-            resposta = q.errors.map((e) => `❌ ${e.label}`).join('<br>')
-            detalhe = '7 erros identificados'
+          }
+          case 'spot-the-error': {
+            // ✅ ERROS ATUALIZADOS
+            const errosCorretos = [
+              'Correr desesperadamente pelo corredor em vez de andar com calma.',
+              'Tirar fotos/filmar com o celular em vez de focar na evacuação.',
+              'Empurrar colegas em vez de ajudar e respeitar os outros.',
+              'Voltar para dentro do prédio contra o fluxo da evacuação.',
+              'Usar o elevador durante o alarme de incêndio em vez das escadas.',
+              'Conversar, rir e bloquear o corredor, ignorando a emergência.',
+              'Sentar nas escadas ou no chão, bloqueando a circulação e saída.',
+            ]
+            resposta = errosCorretos
+              .map((e, i) => `<strong>Erro ${i + 1}:</strong> ${e}`)
+              .join('<br><br>')
+            detalhe = 'Localizações dos 7 erros na imagem'
             break
-          default:
+          }
+          default: {
             resposta = 'Verificar no sistema'
             detalhe = ''
+          }
         }
 
         container.innerHTML += `
-          <div style="background: #f8fafc; padding: 14px 18px; margin-bottom: 10px; border-radius: 10px; border-left: 4px solid #0ea5e9; border: 1px solid #e2e8f0;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
-              <div style="flex: 1; min-width: 200px;">
-                <div style="font-weight: bold; font-size: 15px; color: #0ea5e9;">
-                  ${index + 1}. ${q.room}
-                </div>
-                <div style="font-size: 13px; color: #64748b; margin-top: 2px;">
-                  ${q.situation}
-                </div>
-                <div style="font-size: 13px; color: #475569; margin-top: 4px; background: #f1f5f9; padding: 6px 10px; border-radius: 6px;">
-                  <span style="font-weight: 600; color: #1e293b;">Resposta correta:</span>
-                  <div style="margin-top: 4px; font-weight: 500; color: #0f172a;">
-                    ${resposta}
-                  </div>
-                  ${detalhe ? `<div style="font-size: 11px; color: #94a3b8; margin-top: 3px;">${detalhe}</div>` : ''}
-                </div>
+          <div style="background: #f8fafc; padding: 14px 16px; margin-bottom: 12px; border-radius: 10px; border-left: 4px solid #0ea5e9; border: 1px solid #e2e8f0; page-break-inside: avoid;">
+            <div style="font-weight: bold; font-size: 15px; color: #0ea5e9; margin-bottom: 4px;">
+              ${index + 1}. ${q.room}
+            </div>
+            <div style="font-size: 12px; color: #64748b; margin-bottom: 8px;">
+              ${q.situation}
+            </div>
+            <div style="font-size: 13px; color: #475569; background: #f1f5f9; padding: 10px 12px; border-radius: 6px; line-height: 1.6; word-wrap: break-word;">
+              <div style="font-weight: 600; color: #1e293b; margin-bottom: 6px;">Resposta correta:</div>
+              <div style="font-weight: 500; color: #0f172a;">
+                ${resposta}
               </div>
-              <div style="font-size: 14px; color: #22c55e; font-weight: bold; background: #dcfce7; padding: 4px 12px; border-radius: 20px; margin-left: 10px; white-space: nowrap; align-self: center;">
-                ✅ Correta
-              </div>
+              ${detalhe ? `<div style="font-size: 11px; color: #94a3b8; margin-top: 8px; font-style: italic;">${detalhe}</div>` : ''}
             </div>
           </div>
         `
       })
 
       container.innerHTML += `
-          </div>
-        </div>
-        
-        <div style="text-align: center; padding-top: 20px; border-top: 2px solid #e2e8f0; color: #94a3b8; font-size: 12px;">
+        <div style="text-align: center; padding-top: 20px; border-top: 2px solid #e2e8f0; color: #94a3b8; font-size: 12px; margin-top: 20px;">
           © Missão de Evacuação - Treinamento Corporativo
           <br>
           Use este gabarito para revisar seus conhecimentos sobre segurança e evacuação.
@@ -262,6 +287,8 @@ export const ResultsScreen = ({ state, onRestart }) => {
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false,
+        width: 794,
+        windowWidth: 794,
       })
 
       document.body.removeChild(container)
@@ -269,19 +296,23 @@ export const ResultsScreen = ({ state, onRestart }) => {
       const imgData = canvas.toDataURL('image/png')
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+      const pdfHeight = pdf.internal.pageSize.getHeight()
+      const imgWidth = pdfWidth
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
 
-      let heightLeft = pdfHeight
+      let heightLeft = imgHeight
       let position = 0
 
-      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight)
-      heightLeft -= pdf.internal.pageSize.getHeight()
+      // Primeira página
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+      heightLeft -= pdfHeight
 
+      // Páginas extras
       while (heightLeft > 0) {
-        position = heightLeft - pdfHeight
+        position = heightLeft - imgHeight
         pdf.addPage()
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight)
-        heightLeft -= pdf.internal.pageSize.getHeight()
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+        heightLeft -= pdfHeight
       }
 
       pdf.save('Gabarito-Missao-Evacuacao.pdf')
@@ -404,11 +435,6 @@ export const ResultsScreen = ({ state, onRestart }) => {
                 }}
               />
             </div>
-            <Flag
-              size={48}
-              className="absolute -top-2 -right-2 z-20 text-yellow-300 animate-bounce-slight"
-              aria-hidden="true"
-            />
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
               🎉 Treinamento Concluído! 🎉
             </h1>

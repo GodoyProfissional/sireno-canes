@@ -6,6 +6,8 @@ import { Sequence } from './questionTypes/Sequence'
 import { ImageHotspot } from './questionTypes/ImageHotspot'
 import { RouteChoice } from './questionTypes/RouteChoice'
 import { SpotError } from './questionTypes/SpotError'
+// ✅ NOVO IMPORT
+import { MultiImageHotspot } from './questionTypes/MultiImageHotspot'
 import * as LucideIcons from 'lucide-react'
 
 // Mapeamento de ícones Phosphor para Lucide
@@ -103,6 +105,8 @@ export const QuestionRenderer = ({ question, index, total, onAnswer }) => {
         return <Sequence question={question} onAnswer={onAnswer} />
       case 'image-hotspot':
         return <ImageHotspot question={question} onAnswer={onAnswer} />
+      case 'multi-image-hotspot':
+        return <MultiImageHotspot question={question} onAnswer={onAnswer} />
       case 'route-choice':
         return <RouteChoice question={question} onAnswer={onAnswer} />
       case 'spot-the-error':

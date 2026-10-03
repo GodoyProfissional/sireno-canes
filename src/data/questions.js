@@ -1,10 +1,15 @@
 // Importe suas imagens
 import CanesElevador from '../assets/imagens/Canes-Elevador-Lotado.png'
-import CanesRampa from '../assets/imagens/Canes-querda-Rampa.png'
-import CanesCelular from '../assets/imagens/Canes-Usando-celular.png'
+import CanesRampa from '../assets/imagens/Canes-correndo-rampa1.png'
+import CanesCelular from '../assets/imagens/Canes-correndo-rampa.png'
 import SirenoJoinha from '../assets/imagens/Sireno-fazendo-joinha.png'
 import SirenoTchau from '../assets/imagens/Sireno-fazendo-tchau.png'
 import Sireno from '../assets/imagens/sireno.png'
+
+import PontoFundo from '../assets/imagens/Pontoencontro-fundo.png'
+import PontoFrente from '../assets/imagens/Pontoencontro-frente.png'
+
+import Erros7 from '../assets/imagens/Erros7.jpg'
 
 export const IMAGES = {
   SIRENO: Sireno,
@@ -13,6 +18,9 @@ export const IMAGES = {
   CANES_ELEVADOR: CanesElevador,
   CANES_RAMPA: CanesRampa,
   CANES_CELULAR: CanesCelular,
+  PONTO_FUNDO: PontoFundo,
+  PONTO_FRENTE: PontoFrente,
+  ERROS_7: Erros7,
 }
 
 // Placeholders para outras imagens
@@ -71,7 +79,7 @@ export const questionsDB = [
     explanationCorrect:
       'Perfeito! A unidade possui dois pontos: um na entrada principal e outro no estacionamento.',
     explanationWrong:
-      'O vídeo instrui claramente que existem apenas dois pontos de encontro (entrada principal e estacionamento).',
+      'O vídeo instrui que existem apenas dois pontos de encontro (entrada principal e estacionamento).',
   },
 
   // 2. Alarme
@@ -94,7 +102,7 @@ export const questionsDB = [
     distractorsRight: ['Ligar para os bombeiros', 'Procurar a origem do fogo'],
     correctAnswer: 'correct',
     explanationCorrect:
-      'Muito bem! No 1º toque apenas a brigada se mobiliza. O 2º toque é o sinal para evacuação total.',
+      'No 1º toque apenas a brigada se mobiliza. O 2º toque é o sinal para evacuação total.',
     explanationWrong:
       'Confundir os toques pode gerar pânico. 1º Toque = Aguardar; 2º Toque = Evacuar.',
   },
@@ -117,7 +125,7 @@ export const questionsDB = [
       'Permanecer no ponto de encontro',
     ],
     correctAnswer: 'correct',
-    explanationCorrect: 'Excelente! Esta é a sequência perfeita para garantir a segurança.',
+    explanationCorrect: 'Esta é a sequência perfeita para garantir a segurança.',
     explanationWrong:
       'A ordem está incorreta. Lembre-se que devemos primeiro nos atentar ao 1º toque.',
   },
@@ -142,7 +150,7 @@ export const questionsDB = [
     ],
     correctAnswer: 'b',
     explanationCorrect:
-      'Correto! Corredores e escadas são rotas de fuga vitais e devem estar sempre desobstruídos.',
+      'Corredores e escadas são rotas de fuga vitais e devem estar sempre desobstruídos.',
     explanationWrong:
       'Eles não podem ser obstruídos pois são rotas de fuga e locais de circulação.',
   },
@@ -183,7 +191,7 @@ export const questionsDB = [
     ],
     correctAnswer: 'correct',
     explanationCorrect: 'Perfeito! Você identificou as piores práticas no uso dos elevadores.',
-    explanationWrong: 'Cuidado! Você não selecionou todos os comportamentos incorretos.',
+    explanationWrong: 'Você não selecionou todos os comportamentos incorretos.',
   },
 
   // 6. Funções - SIRENO JOINHA
@@ -203,7 +211,7 @@ export const questionsDB = [
     ],
     distractorsRight: ['Vice-representante', 'Coordenador'],
     correctAnswer: 'correct',
-    explanationCorrect: `Correto! Em situações habituais, o representante puxa-fila, o docente cerra-fila e o anjo da Guarda ajuda alunos com singularidades.<br>
+    explanationCorrect: `Em situações habituais, o representante puxa-fila, o docente cerra-fila e o anjo da Guarda ajuda alunos com singularidades.<br>
       ${getSirenoBalloon(
         'Caso os docentes sejam brigadistas, o cerra-fila será o vice-representante.<br><br><b>Atenção:</b> Após a evacuação de todos, a sala deverá ser lacrada.',
         IMAGES.SIRENO_JOINHA,
@@ -246,8 +254,7 @@ export const questionsDB = [
         'Respeite a sinalização de limpeza para evitar acidentes.',
         IMAGES.SIRENO_TCHAU,
       )}`,
-    explanationWrong:
-      'Erro crítico. Você marcou algo que é correto fazer ou deixou passar algo proibido.',
+    explanationWrong: 'Você marcou algo que é correto fazer ou deixou passar algo proibido.',
   },
 
   // 8. CANES CELULAR
@@ -282,8 +289,8 @@ export const questionsDB = [
       { text: 'Ficar na fila', icon: 'ph-users-three', isCorrect: false },
     ],
     correctAnswer: 'correct',
-    explanationCorrect: 'Muito bem! Usar celular, correr ou entrar em pânico só aumenta os riscos.',
-    explanationWrong: 'Preste mais atenção! Você precisa identificar os riscos.',
+    explanationCorrect: 'Usar celular, correr ou entrar em pânico só aumenta os riscos.',
+    explanationWrong: 'Você precisa identificar os riscos, e os comportamentos inadequados.',
   },
 
   // 9. Anjo da Guarda
@@ -305,7 +312,7 @@ export const questionsDB = [
       { id: 'd', text: 'D) Carregar extintores; é um funcionário exclusivo.' },
     ],
     correctAnswer: 'a',
-    explanationCorrect: 'Exato! O anjo da guarda acompanha pessoas com necessidades específicas.',
+    explanationCorrect: 'O anjo da guarda acompanha pessoas com necessidades específicas.',
     explanationWrong: 'Incorreto. O anjo da guarda deve ser indicado no início do curso.',
   },
 
@@ -334,33 +341,54 @@ export const questionsDB = [
   },
 
   // 11. Permanecer no Ponto de Encontro + Sireno
+  // 11. Permanecer no Ponto de Encontro + Sireno (DUPLO HOTSPOT)
   {
     id: 11,
-    type: 'image-hotspot',
+    type: 'multi-image-hotspot',
     room: 'Zona Segura',
     roomIcon: 'ph-users-three',
     bgImage: IMG_SAIDA,
     situation: 'Fase 11: Chegada Segura',
-    question:
-      'Você chegou à área externa. Clique na região que representa o local onde você deve permanecer.',
-    imageUrl: 'https://placehold.co/600x300/1e293b/475569?text=Clique+no+PONTO+DE+ENCONTRO',
-    hotspots: [
+    question: 'Clique no PONTO DE ENCONTRO nas DUAS imagens (fundo e frente da unidade):',
+    images: [
       {
-        x: 20,
-        y: 20,
-        width: 60,
-        height: 60,
-        isCorrect: true,
-        label: 'Ponto de Encontro Isolado',
+        url: IMAGES.PONTO_FUNDO,
+        label: 'Fundo da Unidade',
+        alt: 'Vista do fundo da unidade - clique no ponto de encontro',
+        hotspots: [
+          {
+            x: 30,
+            y: 40,
+            width: 40,
+            height: 40,
+            isCorrect: true,
+            label: 'Ponto de Encontro - Fundo',
+          },
+        ],
+      },
+      {
+        url: IMAGES.PONTO_FRENTE,
+        label: 'Frente da Unidade',
+        alt: 'Vista da frente da unidade - clique no ponto de encontro',
+        hotspots: [
+          {
+            x: 30,
+            y: 40,
+            width: 40,
+            height: 40,
+            isCorrect: true,
+            label: 'Ponto de Encontro - Frente',
+          },
+        ],
       },
     ],
     correctAnswer: 'correct',
-    explanationCorrect: `Muito bem! Você encontrou o local seguro.<br>
+    explanationCorrect: `Você identificou os pontos de encontro nas duas vistas da unidade.<br>
       ${getSirenoBalloon(
         'Permaneça no ponto de encontro. Isso é importante para a conferência das pessoas e para evitar acidentes.',
         IMAGES.SIRENO,
       )}`,
-    explanationWrong: 'Atenção! Você deve localizar o Ponto de Encontro.',
+    explanationWrong: 'Atenção! Você deve clicar no Ponto de Encontro nas DUAS imagens.',
   },
 
   // 12. Rota de Fuga + Sireno
@@ -376,20 +404,20 @@ export const questionsDB = [
       {
         id: 'a',
         title: 'Caminho Sinalizado',
-        desc: 'Seguir a placa verde de Saída pelas ESCADAS',
+        desc: 'Seguir as placas verdes de Saída localizada por todas as rotas de fuga.',
         isCorrect: true,
         icon: 'ph-stairs',
       },
       {
         id: 'b',
         title: 'Caminho Curto',
-        desc: 'Atalhar utilizando o ELEVADOR',
+        desc: 'Utilizar o elevador ou ir para o local mais próximo, mesmo que não seja a rota de fuga.',
         isCorrect: false,
         icon: 'ph-elevator',
       },
     ],
     correctAnswer: 'correct',
-    explanationCorrect: `Decisão segura! <br> ${getSirenoBalloon(
+    explanationCorrect: `Decisão segura! Siga sempre as placas de sinalização <br> ${getSirenoBalloon(
       'É muito importante conhecer as rotas de fuga do local onde você se encontra. Elas estão sinalizadas nos corredores.',
       IMAGES.SIRENO,
     )}`,
@@ -409,15 +437,70 @@ export const questionsDB = [
     situation: 'Fase 13: Os 7 Erros',
     question:
       'Clique diretamente na imagem para identificar 7 atitudes erradas de segurança e comportamento.',
-    imageUrl: IMG_7ERROS,
+    imageUrl: IMAGES.ERROS_7,
     errors: [
-      { x: 10, y: 15, w: 15, h: 15, label: 'Brincadeiras' },
-      { x: 30, y: 35, w: 10, h: 20, label: 'Pessoa Perdida' },
-      { x: 50, y: 20, w: 12, h: 15, label: 'Filmando' },
-      { x: 70, y: 60, w: 15, h: 20, label: 'Uma catraca' },
-      { x: 80, y: 25, w: 10, h: 15, label: 'Trabalhando' },
-      { x: 20, y: 60, w: 15, h: 20, label: 'Empurrando' },
-      { x: 45, y: 70, w: 20, h: 20, label: 'Brigadistas conversando' },
+      // 1. Homem correndo no corredor (inferior esquerdo)
+      {
+        x: 4,
+        y: 50,
+        w: 14,
+        h: 35,
+        label: 'Correr pelo corredor',
+      },
+
+      // 2. Homem de amarelo filmando com celular (superior esquerdo)
+      {
+        x: 22,
+        y: 40,
+        w: 8,
+        h: 20,
+        label: 'Filmar com celular',
+      },
+
+      // 3. Homem azul empurrando a mulher
+      {
+        x: 36,
+        y: 42,
+        w: 10,
+        h: 20,
+        label: 'Empurrar colegas',
+      },
+
+      // 4. Mulher ruiva filmando (centro inferior)
+      {
+        x: 28,
+        y: 72,
+        w: 10,
+        h: 22,
+        label: 'Filmar/fotografar',
+      },
+
+      // 5. Homem amarelo apertando o elevador
+      {
+        x: 55,
+        y: 43,
+        w: 7,
+        h: 20,
+        label: 'Usar o elevador durante incêndio',
+      },
+
+      // 6. Duas mulheres conversando e bloqueando
+      {
+        x: 68,
+        y: 55,
+        w: 14,
+        h: 30,
+        label: 'Conversar e bloquear o corredor',
+      },
+
+      // 7. Menino sentado na escada (direito inferior)
+      {
+        x: 88,
+        y: 68,
+        w: 10,
+        h: 22,
+        label: 'Sentar nas escadas',
+      },
     ],
     correctAnswer: 'correct',
     explanationCorrect:

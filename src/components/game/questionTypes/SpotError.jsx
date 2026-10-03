@@ -20,22 +20,34 @@ export const SpotError = ({ question, onAnswer }) => {
   }
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 w-full max-w-4xl mx-auto">
       <div className="mb-2 flex justify-between items-center">
         <p className="text-sm font-bold text-gray-600 dark:text-gray-400">
-          Clique na imagem e encontre as atitudes incorretas:
+          Encontre as atitudes incorretas toque ou clique, quando encontrar uma atitude incorreta, a
+          mãozinha aparecerá!:
         </p>
         <div className="bg-primary-100 text-primary-800 px-3 py-1 rounded-full font-bold shadow-sm">
           <span>{found.size}</span> / {question.errors.length}
         </div>
       </div>
 
-      <div className="relative w-full rounded-xl overflow-hidden shadow-xl border-2 border-gray-300 dark:border-gray-600 bg-black cursor-crosshair group select-none">
+      {/* ✅ IMAGEM COM ALTURA CONTROLADA */}
+      <div
+        className="relative w-full rounded-xl overflow-hidden shadow-xl border-2 border-gray-300 dark:border-gray-600 bg-black cursor-crosshair group select-none mx-auto"
+        style={{
+          maxHeight: '60vh', // ⬅️ Limita a 60% da altura da tela
+          maxWidth: '800px', // ⬅️ Largura máxima
+        }}
+      >
         <img
           src={question.imageUrl}
-          className="w-full h-auto object-cover opacity-90 pointer-events-none"
+          className="w-full h-auto object-contain pointer-events-none"
           alt="Cenário com erros"
+          style={{
+            maxHeight: '60vh', // ⬅️ Limita a altura da imagem
+          }}
         />
+
         {question.errors.map((err, i) => {
           const isFound = found.has(i)
           return (
