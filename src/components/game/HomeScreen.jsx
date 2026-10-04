@@ -28,7 +28,7 @@ export const HomeScreen = ({ onStart, onContinue, hasProgress }) => {
     playVideo()
 
     // Anunciar tela carregada
-    setAnnouncement('Tela inicial do treinamento de evacuação carregada')
+    setAnnouncement('Tela inicial do treinamento de abandono de área carregada')
 
     return () => {
       video.removeEventListener('ended', handleEnded)
@@ -116,7 +116,7 @@ export const HomeScreen = ({ onStart, onContinue, hasProgress }) => {
             Treinamento Corporativo
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight drop-shadow-xl">
-            Missão de Evacuação
+            Missão de Abandono de Área
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-blue-400 text-3xl md:text-5xl drop-shadow-lg">
               Escape da Unidade
@@ -130,7 +130,7 @@ export const HomeScreen = ({ onStart, onContinue, hasProgress }) => {
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mt-4">
             <button
               onClick={onStart}
-              aria-label="Iniciar missão de evacuação"
+              aria-label="Iniciar missão de abandono de área"
               className="group relative px-10 py-5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-400 hover:to-primary-500 text-white font-bold rounded-2xl shadow-[0_8px_0_rgb(12,74,110)] hover:shadow-[0_4px_0_rgb(12,74,110)] hover:translate-y-1 transition-all text-xl flex items-center gap-3 overflow-hidden"
             >
               <span className="relative z-10 flex items-center gap-2">

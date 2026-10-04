@@ -102,9 +102,9 @@ export const questionsDB = [
     distractorsRight: ['Ligar para os bombeiros', 'Procurar a origem do fogo'],
     correctAnswer: 'correct',
     explanationCorrect:
-      'No 1º toque apenas a brigada se mobiliza. O 2º toque é o sinal para evacuação total.',
+      'No 1º toque apenas a brigada se mobiliza. O 2º toque é o sinal para abandono de área total.',
     explanationWrong:
-      'Confundir os toques pode gerar pânico. 1º Toque = Aguardar; 2º Toque = Evacuar.',
+      'Confundir os toques pode gerar pânico. 1º Toque = Aguardar; 2º Toque = Evacuar a área.',
   },
 
   // 3. Procedimentos
@@ -115,11 +115,11 @@ export const questionsDB = [
     roomIcon: 'ph-list-numbers',
     bgImage: IMG_CORREDOR,
     situation: 'Fase 3: A Ordem de Saída',
-    question: 'Organize corretamente a sequência dos procedimentos de evacuação:',
+    question: 'Organize corretamente a sequência dos procedimentos de abandono de área:',
     steps: [
       'Tocar o alarme (primeiros 30 segundos) — Atenção',
       'Organizar em fila',
-      'Segundo alarme (1 minuto) — Evacuação',
+      'Segundo alarme (1 minuto) — Abandono de Área',
       'Aguardar o brigadista chegar e orientar o ponto de encontro',
       'Seguir para o ponto de encontro',
       'Permanecer no ponto de encontro',
@@ -203,7 +203,7 @@ export const questionsDB = [
     bgImage: IMG_SALA,
     situation: 'Fase 6: O Papel de Cada Um',
     question:
-      'Arraste uma linha para conectar a função ao responsável correto durante a evacuação:',
+      'Arraste uma linha para conectar a função ao responsável correto durante o abandono de área:',
     pairs: [
       { left: 'Puxa-fila', right: 'Representante da Turma' },
       { left: 'Cerra-fila', right: 'Docente (Professor)' },
@@ -213,7 +213,7 @@ export const questionsDB = [
     correctAnswer: 'correct',
     explanationCorrect: `Em situações habituais, o representante puxa-fila, o docente cerra-fila e o anjo da Guarda ajuda alunos com singularidades.<br>
       ${getSirenoBalloon(
-        'Caso os docentes sejam brigadistas, o cerra-fila será o vice-representante.<br><br><b>Atenção:</b> Após a evacuação de todos, a sala deverá ser lacrada.',
+        'Caso os docentes sejam brigadistas, o cerra-fila será o vice-representante.<br><br><b>Atenção:</b> Após o abandono de área de todos, a sala deverá ser lacrada.',
         IMAGES.SIRENO_JOINHA,
       )}`,
     explanationWrong: 'Combinação incorreta! Lembre-se da estrutura padrão ensinada.',
@@ -265,8 +265,8 @@ export const questionsDB = [
     room: 'Comportamento',
     roomIcon: 'ph-device-mobile',
     bgImage: IMG_CORREDOR,
-    situation: 'Fase 8: Durante a Evacuação',
-    question: 'Selecione apenas os seis comportamentos INCORRETOS durante uma evacuação:',
+    situation: 'Fase 8: Durante o Abandono de Área',
+    question: 'Selecione apenas os seis comportamentos INCORRETOS durante um abandono de área:',
     centerImage: IMAGES.CANES_CELULAR,
     bubbles: [
       { text: 'Fazer brincadeiras', icon: 'ph-mask-happy', isCorrect: true },
@@ -326,7 +326,7 @@ export const questionsDB = [
     bgImage: IMG_CORREDOR,
     situation: 'Fase 10: Regra de Ouro',
     question:
-      'Durante a evacuação, você percebe que esqueceu seu celular e mochila na sala. O que fazer?',
+      'Durante o abandono de área, você percebe que esqueceu seu celular e mochila na sala. O que fazer?',
     options: [
       { id: 'a', text: 'A) Voltar correndo para buscar, pois é rápido.' },
       { id: 'b', text: 'B) Jamais retornar. A sua segurança é a prioridade.' },

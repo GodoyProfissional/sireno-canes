@@ -164,7 +164,7 @@ export const ResultsScreen = ({ state, onRestart }) => {
 
       container.innerHTML = `
         <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #0ea5e9; padding-bottom: 20px;">
-          <h1 style="color: #0ea5e9; font-size: 26px; margin: 0;">📋 Gabarito - Missão de Evacuação</h1>
+          <h1 style="color: #0ea5e9; font-size: 26px; margin: 0;">📋 Gabarito - Missão de Abandono de Área</h1>
           <h2 style="color: #1a1a2e; font-size: 16px; margin: 8px 0 0 0; font-weight: normal;">Escape da Unidade - Respostas Corretas</h2>
           <div style="font-size: 13px; color: #64748b; margin-top: 8px;">
             Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}
@@ -234,9 +234,9 @@ export const ResultsScreen = ({ state, onRestart }) => {
             // ✅ ERROS ATUALIZADOS
             const errosCorretos = [
               'Correr desesperadamente pelo corredor em vez de andar com calma.',
-              'Tirar fotos/filmar com o celular em vez de focar na evacuação.',
+              'Tirar fotos/filmar com o celular em vez de focar no abandono de área.',
               'Empurrar colegas em vez de ajudar e respeitar os outros.',
-              'Voltar para dentro do prédio contra o fluxo da evacuação.',
+              'Voltar para dentro do prédio contra o fluxo do abandono de área.',
               'Usar o elevador durante o alarme de incêndio em vez das escadas.',
               'Conversar, rir e bloquear o corredor, ignorando a emergência.',
               'Sentar nas escadas ou no chão, bloqueando a circulação e saída.',
@@ -274,9 +274,9 @@ export const ResultsScreen = ({ state, onRestart }) => {
 
       container.innerHTML += `
         <div style="text-align: center; padding-top: 20px; border-top: 2px solid #e2e8f0; color: #94a3b8; font-size: 12px; margin-top: 20px;">
-          © Missão de Evacuação - Treinamento Corporativo
+          © Missão de Abandono de Área - Treinamento Corporativo
           <br>
-          Use este gabarito para revisar seus conhecimentos sobre segurança e evacuação.
+          Use este gabarito para revisar seus conhecimentos sobre segurança e abandono de área.
         </div>
       `
 
@@ -326,12 +326,12 @@ export const ResultsScreen = ({ state, onRestart }) => {
 
   // ===== COMPARTILHAR =====
   const handleShare = async () => {
-    const text = `🏆 Completei a Missão de Evacuação!\n\n⭐ ${gameState.xp} XP\n🎯 ${accuracy}% de precisão\n⏱️ ${formatTime(gameState.timeElapsed)}\n📊 Nível: ${levelConfig.name}\n\nTreine você também! #EscapeDaUnidade #SegurançaSenac`
+    const text = `🏆 Completei a Missão de Abandono de Área!\n\n⭐ ${gameState.xp} XP\n🎯 ${accuracy}% de precisão\n⏱️ ${formatTime(gameState.timeElapsed)}\n📊 Nível: ${levelConfig.name}\n\nTreine você também! #EscapeDaUnidade #SegurançaSenac`
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Missão de Evacuação - Escape da Unidade',
+          title: 'Missão de Abandono de Área - Escape da Unidade',
           text: text,
         })
       } catch (e) {}
@@ -370,7 +370,7 @@ export const ResultsScreen = ({ state, onRestart }) => {
         icon: Trophy,
         color: 'text-purple-500',
         bg: 'bg-gradient-to-br from-purple-100 to-violet-200',
-        name: 'Especialista em Evacuação',
+        name: 'Especialista em abandono de área',
         border: 'border-purple-400',
       })
     }
@@ -439,7 +439,7 @@ export const ResultsScreen = ({ state, onRestart }) => {
               🎉 Treinamento Concluído! 🎉
             </h1>
             <p className="opacity-90 mt-1 text-base md:text-lg">
-              Parabéns! Você completou a missão de evacuação com sucesso!
+              Parabéns! Você completou a missão de abandono de área com sucesso!
             </p>
           </div>
         </div>

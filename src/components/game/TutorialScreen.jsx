@@ -2,8 +2,10 @@ import { useState, useEffect, useRef } from 'react'
 import { Heart, TrendingUp, Rocket, X, ArrowLeft } from 'lucide-react'
 import sirenoItens from '../../assets/imagens/Sireno-itensbrigada.png'
 import CanesItens from '../../assets/imagens/Canes-Apresentacao.png'
+import CanesImg from '../../assets/imagens/Canesapresentacao.png'
 import sirenoHome from '../../assets/imagens/Sireno-Home.png'
-import mascotesImg from '../../assets/imagens/CanesSireno.jpg'
+import sirenoImg from '../../assets/imagens/Sirenoapresentacao.jpg'
+import mascotesImg from '../../assets/imagens/CanesSirenoNovo.jpg'
 
 export const TutorialScreen = ({ onStart }) => {
   const [showMascotes, setShowMascotes] = useState(false)
@@ -237,7 +239,7 @@ export const TutorialScreen = ({ onStart }) => {
                 >
                   <img
                     src={mascotesImg}
-                    alt="Mascotes da segurança: Sireno e Canes, personagens do treinamento de evacuação. Clique para saber mais."
+                    alt="Mascotes da segurança: Sireno e Canes, personagens do treinamento de abandono de área. Clique para saber mais."
                     className="w-full h-auto block transition-transform duration-300 group-hover:scale-[1.02]"
                     onError={(e) => {
                       console.error('Erro ao carregar a imagem dos mascotes')
@@ -259,7 +261,7 @@ export const TutorialScreen = ({ onStart }) => {
                     <div className="flex items-start gap-4">
                       <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center overflow-hidden border-2 border-blue-300">
                         <img
-                          src={sirenoHome}
+                          src={sirenoImg}
                           alt="Sireno, o elefante da brigada"
                           className="w-full h-full object-cover"
                         />
@@ -281,7 +283,7 @@ export const TutorialScreen = ({ onStart }) => {
                     <div className="flex items-start gap-4">
                       <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center overflow-hidden border-2 border-red-300">
                         <img
-                          src={CanesItens}
+                          src={CanesImg}
                           alt="Canes, o dragão da bagunça"
                           className="w-full h-full object-cover"
                         />
