@@ -428,7 +428,7 @@ export const questionsDB = [
     )}`,
   },
 
-  // 13. Jogo dos 7 Erros
+    // 13. Jogo dos 7 Erros
   {
     id: 13,
     type: 'spot-the-error',
@@ -440,66 +440,66 @@ export const questionsDB = [
       'Clique diretamente na imagem para identificar 7 atitudes erradas de segurança e comportamento.',
     imageUrl: IMAGES.ERROS_7,
     errors: [
-      // 1. Homem correndo no corredor (inferior esquerdo)
+      // 1. Homem correndo no corredor (esquerda)
       {
-        x: 4,
+        x: 2,
         y: 50,
-        w: 14,
+        w: 13,
         h: 35,
         label: 'Correr pelo corredor',
       },
 
-      // 2. Homem de amarelo filmando com celular (superior esquerdo)
+      // 2. Homem de verde filmando com celular (esquerda superior)
       {
-        x: 22,
-        y: 40,
-        w: 8,
-        h: 20,
+        x: 20,
+        y: 38,
+        w: 10,
+        h: 22,
         label: 'Filmar com celular',
       },
 
-      // 3. Homem azul empurrando a mulher
+      // 3. Alien marrom empurrando o alien roxo
       {
-        x: 36,
-        y: 42,
+        x: 32,
+        y: 38,
         w: 10,
-        h: 20,
+        h: 22,
         label: 'Empurrar colegas',
       },
 
-      // 4. Mulher ruiva filmando (centro inferior)
+      // 4. Mulher roxa filmando (centro inferior)
       {
-        x: 28,
-        y: 72,
-        w: 10,
-        h: 22,
+        x: 24,
+        y: 70,
+        w: 12,
+        h: 25,
         label: 'Filmar/fotografar',
       },
 
-      // 5. Homem amarelo apertando o elevador
+      // 5. Alien verde apertando o elevador
       {
-        x: 55,
-        y: 43,
-        w: 7,
-        h: 20,
+        x: 52,
+        y: 38,
+        w: 8,
+        h: 22,
         label: 'Usar o elevador durante incêndio',
       },
 
-      // 6. Duas mulheres conversando e bloqueando
+      // 6. Elfa e alien azul conversando (direita)
       {
-        x: 68,
-        y: 55,
-        w: 14,
-        h: 30,
+        x: 65,
+        y: 50,
+        w: 16,
+        h: 35,
         label: 'Conversar e bloquear o corredor',
       },
 
-      // 7. Menino sentado na escada (direito inferior)
+      // 7. Alien verde sentado na escada (direita inferior)
       {
         x: 88,
-        y: 68,
-        w: 10,
-        h: 22,
+        y: 48,
+        w: 12,
+        h: 25,
         label: 'Sentar nas escadas',
       },
     ],
