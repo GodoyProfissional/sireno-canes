@@ -9,7 +9,7 @@ import Sireno from '../assets/imagens/sireno.png'
 import PontoFundo from '../assets/imagens/Pontoencontro-fundo.png'
 import PontoFrente from '../assets/imagens/Pontoencontro-frente.png'
 
-import Erros7 from '../assets/imagens/Erros7.jpg'
+import Erros7 from '../assets/imagens/7errosfuturistas.png'
 
 export const IMAGES = {
   SIRENO: Sireno,
